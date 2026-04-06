@@ -606,12 +606,15 @@ function PostDetailModal({ post, userId, displayName, isChris, hasUpvoted, onUpv
   const canDeletePost = isChris || post.user_id === userId;
 
   return (
-    <Modal visible animationType="slide">
-      <View style={styles.detailContainer}>
+    <View style={[StyleSheet.absoluteFillObject, styles.detailContainer, { zIndex: 999, elevation: 999 }]}>
         {/* Header */}
         <View style={styles.detailHeader}>
-          <TouchableOpacity onPress={onClose} style={styles.backBtn}>
-            <Ionicons name="arrow-back" size={22} color={Colors.black} />
+          <TouchableOpacity
+            onPress={onClose}
+            style={styles.backBtn}
+            hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+          >
+            <Ionicons name="arrow-back" size={24} color={Colors.black} />
           </TouchableOpacity>
           <Text style={styles.detailHeaderTitle} numberOfLines={1}>{post.title}</Text>
           {canDeletePost && (
@@ -735,8 +738,7 @@ function PostDetailModal({ post, userId, displayName, isChris, hasUpvoted, onUpv
             </TouchableOpacity>
           </View>
         </KeyboardAvoidingView>
-      </View>
-    </Modal>
+    </View>
   );
 }
 
@@ -847,7 +849,7 @@ const styles = StyleSheet.create({
   detailHeader:     { flexDirection: "row", alignItems: "center", paddingHorizontal: 16,
                       paddingVertical: 14, backgroundColor: Colors.white,
                       borderBottomWidth: 1, borderBottomColor: Colors.border, gap: 12 },
-  backBtn:          { padding: 2 },
+  backBtn:          { padding: 10 },
   detailHeaderTitle:{ flex: 1, fontSize: 16, fontWeight: "700", color: Colors.black },
 
   detailPost:       { padding: 20, backgroundColor: Colors.white,
