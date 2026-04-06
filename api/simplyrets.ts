@@ -56,7 +56,7 @@ function buildParams(query: ListingsQuery): URLSearchParams {
   if (query.sort)      p.append("sort",      query.sort);
 
   const cities = query.cities ?? defaultCities;
-  cities.forEach((c) => p.append("cities", c));
+  if (cities.length > 0) cities.forEach((c) => p.append("cities", c));
 
   query.postalCodes?.forEach((z) => p.append("postalCodes", z));
   return p;

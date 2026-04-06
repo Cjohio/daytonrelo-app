@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { router } from "expo-router";
 import BrandHeader, { BackBtn } from "../shared/components/BrandHeader";
 import {
   View, Text, TextInput, TouchableOpacity,
@@ -245,8 +246,16 @@ function AffordTab() {
         )}
 
         <Text style={s.disclaimer}>
-          * Estimates use Ohio avg. property tax (~1.4%) and $1,200/yr insurance. For a personalized pre-approval, talk to Chris.
+          * Estimates use Ohio avg. property tax (~1.4%) and $1,200/yr insurance. For a personalized pre-approval, talk to a lender.
         </Text>
+        <TouchableOpacity
+          style={s.lenderBtn}
+          onPress={() => router.push("/lender" as any)}
+          activeOpacity={0.85}
+        >
+          <Ionicons name="business-outline" size={16} color={Colors.black} />
+          <Text style={s.lenderBtnText}>Meet Our Preferred Lender</Text>
+        </TouchableOpacity>
         <View style={{ height: 40 }} />
       </ScrollView>
     </KeyboardAvoidingView>
@@ -432,8 +441,16 @@ function PaymentTab() {
         )}
 
         <Text style={s.disclaimer}>
-          * Estimates use Ohio avg. property tax (~1.4%) and $1,200/yr insurance. PMI estimated at 0.5%/yr. For exact figures, talk to Chris.
+          * Estimates use Ohio avg. property tax (~1.4%) and $1,200/yr insurance. PMI estimated at 0.5%/yr. For exact figures, talk to a lender.
         </Text>
+        <TouchableOpacity
+          style={s.lenderBtn}
+          onPress={() => router.push("/lender" as any)}
+          activeOpacity={0.85}
+        >
+          <Ionicons name="business-outline" size={16} color={Colors.black} />
+          <Text style={s.lenderBtnText}>Meet Our Preferred Lender</Text>
+        </TouchableOpacity>
         <View style={{ height: 40 }} />
       </ScrollView>
     </KeyboardAvoidingView>
@@ -564,6 +581,14 @@ const s = StyleSheet.create({
 
   disclaimer: {
     color: Colors.grayLight, fontSize: 11, textAlign: "center",
-    lineHeight: 16, paddingHorizontal: 8,
+    lineHeight: 16, paddingHorizontal: 8, marginBottom: 12,
   },
+
+  lenderBtn: {
+    flexDirection: "row", alignItems: "center", justifyContent: "center",
+    gap: 8, backgroundColor: Colors.gold,
+    paddingVertical: 13, borderRadius: 12,
+    marginHorizontal: 0, marginBottom: 4,
+  },
+  lenderBtnText: { color: Colors.black, fontWeight: "800", fontSize: 14 },
 });

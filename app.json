@@ -14,7 +14,9 @@
       "resizeMode": "contain",
       "backgroundColor": "#0A0A0A"
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.daytonrelo.app",
@@ -33,11 +35,15 @@
         "NSPrivacyAccessedAPITypes": [
           {
             "NSPrivacyAccessedAPIType": "NSPrivacyAccessedAPICategoryUserDefaults",
-            "NSPrivacyAccessedAPITypeReasons": ["CA92.1"]
+            "NSPrivacyAccessedAPITypeReasons": [
+              "CA92.1"
+            ]
           },
           {
             "NSPrivacyAccessedAPIType": "NSPrivacyAccessedAPICategoryFileTimestamp",
-            "NSPrivacyAccessedAPITypeReasons": ["C617.1"]
+            "NSPrivacyAccessedAPITypeReasons": [
+              "C617.1"
+            ]
           }
         ],
         "NSPrivacyCollectedDataTypes": [],
@@ -81,8 +87,10 @@
     },
     "extra": {
       "eas": {
-        "projectId": "dayton-relo-app"
-      }
-    }
+        "projectId": "bede7d37-349f-444c-8719-1a8c30876024"
+      },
+      "router": {}
+    },
+    "owner": "wolfbot"
   }
 }

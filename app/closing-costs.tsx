@@ -198,11 +198,11 @@ export default function ClosingCostsScreen() {
 
         <TouchableOpacity
           style={s.ctaBtn}
-          onPress={() => router.push("/(tabs)/contact" as any)}
+          onPress={() => router.push("/lender" as any)}
           activeOpacity={0.85}
         >
           <Ionicons name="person-outline" size={16} color={Colors.black} />
-          <Text style={s.ctaBtnText}>Talk to Chris About Financing</Text>
+          <Text style={s.ctaBtnText}>Meet Our Preferred Lender</Text>
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>

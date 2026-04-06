@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useRouter } from "expo-router";
 import BrandHeader, { BackBtn } from "../shared/components/BrandHeader";
 import {
   View, Text, TouchableOpacity, ScrollView,
@@ -421,6 +422,7 @@ function ParkCard({ park }: { park: Park }) {
 
 // ─── Screen ───────────────────────────────────────────────────────────────────
 export default function ParksScreen() {
+  const router = useRouter();
   const [tab, setTab] = useState<"metro" | "city">("metro");
 
   const parks = tab === "metro" ? METRO_PARKS : CITY_PARKS;
@@ -436,6 +438,7 @@ export default function ParksScreen() {
 
   return (
     <SafeAreaView style={sb.safe} edges={["top"]}>
+      <BrandHeader left={<BackBtn onPress={() => router.back()} />} />
       {/* Tab switcher */}
       <View style={sb.tabRow}>
         <TouchableOpacity
@@ -491,7 +494,7 @@ export default function ParksScreen() {
 
 // ─── Styles ───────────────────────────────────────────────────────────────────
 const sb = StyleSheet.create({
-  safe:  { flex: 1, backgroundColor: Colors.white },
+  safe:  { flex: 1, backgroundColor: Colors.black },
   scroll: { padding: 16, paddingBottom: 120 },
 
   // Tabs

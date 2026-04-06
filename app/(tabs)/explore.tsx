@@ -119,7 +119,7 @@ export default function ExploreScreen() {
     setLoading(true);
     setError(null);
     try {
-      const cities = activeArea === "All Areas" ? undefined : [activeArea];
+      const cities = activeArea === "All Areas" ? [] : [activeArea];
       const results =
         mode === "sale"
           ? await simplyRetsApi.getForSale({ cities, q: query || undefined, limit: 20, maxprice: activeMaxPrice })

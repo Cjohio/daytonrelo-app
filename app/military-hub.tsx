@@ -252,14 +252,14 @@ export default function MilitaryHub() {
           {/* Lender CTA */}
           <TouchableOpacity
             style={s.lenderCTA}
-            onPress={() => router.push("/va-lender" as any)}
+            onPress={() => router.push("/lender" as any)}
             activeOpacity={0.85}
           >
             <View style={s.lenderCTALeft}>
               <Ionicons name="business-outline" size={22} color={Colors.gold} />
               <View>
-                <Text style={s.lenderCTATitle}>Meet Our Preferred VA Lender</Text>
-                <Text style={s.lenderCTASub}>Specializing in VA loans for WPAFB families</Text>
+                <Text style={s.lenderCTATitle}>Meet Our Preferred Lender</Text>
+                <Text style={s.lenderCTASub}>VA, conventional, FHA & more — all loan types</Text>
               </View>
             </View>
             <Ionicons name="arrow-forward" size={18} color={Colors.gold} />

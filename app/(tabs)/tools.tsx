@@ -112,6 +112,13 @@ const ALL_TOOLS: Record<string, ToolDef> = {
     icon: "home-outline",
     route: "/mortgage-calculator",
   },
+  "preferred-lender": {
+    id: "preferred-lender",
+    title: "Preferred Lender",
+    subtitle: "VA, conventional, FHA & more. Meet Chris's trusted lending partner for all loan types.",
+    icon: "business-outline",
+    route: "/lender",
+  },
   "rent-vs-buy": {
     id: "rent-vs-buy",
     title: "Rent vs. Buy Calculator",
@@ -160,6 +167,20 @@ const ALL_TOOLS: Record<string, ToolDef> = {
     subtitle: "MetroParks + city parks — playgrounds, pickleball, splash pads, trails.",
     icon: "leaf-outline",
     route: "/parks",
+  },
+  "breweries": {
+    id: "breweries",
+    title: "Local Breweries",
+    subtitle: "19 Dayton-area craft breweries — food, features, and websites for every taproom.",
+    icon: "beer-outline",
+    route: "/breweries",
+  },
+  "golf": {
+    id: "golf",
+    title: "Golf Courses",
+    subtitle: "13 Dayton-area courses — public, municipal & private with tee time links.",
+    icon: "golf-outline",
+    route: "/golf",
   },
   "eats": {
     id: "eats",
@@ -218,7 +239,7 @@ const PERSONA_SECTIONS: Record<Persona, SectionDef[]> = {
     {
       title: "Home Search",
       icon: "home-outline",
-      toolIds: ["mortgage-calculator", "closing-costs", "compare-neighborhoods", "neighborhood-quiz", "schools", "open-houses"],
+      toolIds: ["preferred-lender", "mortgage-calculator", "closing-costs", "compare-neighborhoods", "neighborhood-quiz", "schools", "open-houses"],
     },
     {
       title: "PCS Planning",
@@ -233,7 +254,7 @@ const PERSONA_SECTIONS: Record<Persona, SectionDef[]> = {
     {
       title: "Explore Dayton",
       icon: "compass-outline",
-      toolIds: ["dayton-events", "things-to-do", "parks", "eats", "day-trips"],
+      toolIds: ["dayton-events", "things-to-do", "parks", "breweries", "golf", "eats", "day-trips"],
     },
     {
       title: "Local Services",
@@ -245,7 +266,7 @@ const PERSONA_SECTIONS: Record<Persona, SectionDef[]> = {
     {
       title: "Home Search",
       icon: "home-outline",
-      toolIds: ["mortgage-calculator", "rent-vs-buy", "closing-costs", "compare-neighborhoods", "neighborhood-quiz", "schools", "open-houses"],
+      toolIds: ["preferred-lender", "mortgage-calculator", "rent-vs-buy", "closing-costs", "compare-neighborhoods", "neighborhood-quiz", "schools", "open-houses"],
     },
     {
       title: "Your Relocation",
@@ -260,7 +281,7 @@ const PERSONA_SECTIONS: Record<Persona, SectionDef[]> = {
     {
       title: "Explore Dayton",
       icon: "compass-outline",
-      toolIds: ["dayton-events", "things-to-do", "parks", "eats", "day-trips"],
+      toolIds: ["dayton-events", "things-to-do", "parks", "breweries", "golf", "eats", "day-trips"],
     },
     {
       title: "Local Services",
@@ -272,12 +293,12 @@ const PERSONA_SECTIONS: Record<Persona, SectionDef[]> = {
     {
       title: "Explore Dayton",
       icon: "compass-outline",
-      toolIds: ["dayton-events", "things-to-do", "parks", "eats", "day-trips"],
+      toolIds: ["dayton-events", "things-to-do", "parks", "breweries", "golf", "eats", "day-trips"],
     },
     {
       title: "Your Home & Services",
       icon: "home-outline",
-      toolIds: ["local-services", "schools", "first-30-days"],
+      toolIds: ["preferred-lender", "mortgage-calculator", "closing-costs", "local-services", "schools", "first-30-days"],
     },
     {
       title: "Neighborhoods",

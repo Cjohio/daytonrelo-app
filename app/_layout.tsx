@@ -84,10 +84,11 @@ export default function RootLayout() {
             <Stack.Screen name="neighborhood/[id]"     options={{ ...SCREEN_OPTIONS, title: "Neighborhood" }} />
             <Stack.Screen name="listing"               options={{ ...SCREEN_OPTIONS, title: "Listing Detail" }} />
             <Stack.Screen name="va-lender"             options={{ ...SCREEN_OPTIONS, title: "VA Lender" }} />
+            <Stack.Screen name="lender"               options={{ headerShown: false }} />
             <Stack.Screen name="first-30-days"         options={{ ...SCREEN_OPTIONS, title: "First 30 Days" }} />
             <Stack.Screen name="mortgage-calculator"   options={{ ...SCREEN_OPTIONS, title: "Mortgage Calculator" }} />
             <Stack.Screen name="schools"               options={{ ...SCREEN_OPTIONS, title: "Schools" }} />
-            <Stack.Screen name="parks"                 options={{ ...SCREEN_OPTIONS, title: "Parks & Recreation" }} />
+            <Stack.Screen name="parks"                 options={{ headerShown: false }} />
             <Stack.Screen name="wpafb"                 options={{ ...SCREEN_OPTIONS, title: "Wright-Patterson AFB" }} />
             <Stack.Screen name="things-to-do"          options={{ ...SCREEN_OPTIONS, title: "Things To Do" }} />
             <Stack.Screen name="edit-profile"          options={{ ...SCREEN_OPTIONS, title: "Edit Profile" }} />
@@ -100,6 +101,8 @@ export default function RootLayout() {
             <Stack.Screen name="temp-housing"          options={{ ...SCREEN_OPTIONS, title: "Temporary Housing" }} />
             <Stack.Screen name="commute-finder"        options={{ ...SCREEN_OPTIONS, title: "Commute Finder" }} />
             <Stack.Screen name="day-trips"             options={{ ...SCREEN_OPTIONS, title: "Day Trips" }} />
+            <Stack.Screen name="breweries"            options={{ headerShown: false }} />
+            <Stack.Screen name="golf"                 options={{ headerShown: false }} />
             <Stack.Screen name="local-services"        options={{ ...SCREEN_OPTIONS, title: "Local Services" }} />
             <Stack.Screen name="closing-costs"         options={{ ...SCREEN_OPTIONS, title: "Closing Cost Calculator" }} />
             <Stack.Screen name="neighborhood-compare"  options={{ ...SCREEN_OPTIONS, title: "Compare Neighborhoods" }} />

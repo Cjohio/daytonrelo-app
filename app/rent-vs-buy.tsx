@@ -305,8 +305,8 @@ export default function RentVsBuy() {
         )}
 
         {/* CTA */}
-        <TouchableOpacity style={s.cta} onPress={() => router.push("/contact")}>
-          <Text style={s.ctaText}>Talk to Chris About Your Options</Text>
+        <TouchableOpacity style={s.cta} onPress={() => router.push("/lender" as any)}>
+          <Text style={s.ctaText}>Meet Our Preferred Lender</Text>
           <Ionicons name="arrow-forward" size={18} color={Colors.black} />
         </TouchableOpacity>
 
