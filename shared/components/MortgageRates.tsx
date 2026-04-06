@@ -305,6 +305,60 @@ const tc = StyleSheet.create({
   },
 });
 
+// ─── Historical Sparkline ─────────────────────────────────────────────────────
+// Hardcoded weekly 30-yr fixed rate data — last 8 Freddie Mac readings
+// (approximate 2025–2026 weekly values; update when live API is wired)
+const RATE_HISTORY: number[] = [7.22, 7.09, 7.04, 6.95, 6.87, 6.94, 6.82, 6.78];
+const SPARK_BAR_W = 9;
+const SPARK_GAP   = 4;
+const SPARK_H     = 28;  // total chart height in px
+const SPARK_MIN_H = 4;   // minimum bar height so tiny bars still show
+
+function Sparkline() {
+  const minR = Math.min(...RATE_HISTORY);
+  const maxR = Math.max(...RATE_HISTORY);
+  const range = maxR - minR || 0.01;
+
+  return (
+    <View style={sp.wrap}>
+      <View style={sp.chart}>
+        {RATE_HISTORY.map((r, i) => {
+          const isLast = i === RATE_HISTORY.length - 1;
+          const frac   = (r - minR) / range;            // 0 = lowest, 1 = highest
+          const barH   = SPARK_MIN_H + frac * (SPARK_H - SPARK_MIN_H);
+          // Color: low rate = green, high rate = red/orange
+          const color  = isLast
+            ? Colors.gold
+            : frac < 0.33
+              ? "#22C55E"
+              : frac < 0.66
+                ? "#FACC15"
+                : "#F87171";
+          return (
+            <View key={i} style={sp.barWrap}>
+              <View style={[sp.bar, { height: barH, backgroundColor: color, opacity: isLast ? 1 : 0.7 }]} />
+            </View>
+          );
+        })}
+      </View>
+      <View style={sp.labelRow}>
+        <Text style={sp.labelLeft}>8 wk ago</Text>
+        <Text style={sp.labelRight}>Today</Text>
+      </View>
+    </View>
+  );
+}
+
+const sp = StyleSheet.create({
+  wrap:     { paddingHorizontal: 12, paddingBottom: 6, paddingTop: 4 },
+  chart:    { flexDirection: "row", alignItems: "flex-end", height: SPARK_H, gap: SPARK_GAP },
+  barWrap:  { width: SPARK_BAR_W },
+  bar:      { width: SPARK_BAR_W, borderRadius: 3 },
+  labelRow: { flexDirection: "row", justifyContent: "space-between", marginTop: 3 },
+  labelLeft:  { color: "#444", fontSize: 9 },
+  labelRight: { color: "#888", fontSize: 9 },
+});
+
 // ─── Main component ───────────────────────────────────────────────────────────
 
 export default function MortgageRates() {
@@ -340,6 +394,9 @@ export default function MortgageRates() {
           </TouchableOpacity>
         </View>
       </View>
+
+      {/* Historical sparkline */}
+      <Sparkline />
 
       {/* Ticker */}
       {loading || !rates ? (

@@ -103,6 +103,9 @@ export default function RootLayout() {
             <Stack.Screen name="local-services"        options={{ ...SCREEN_OPTIONS, title: "Local Services" }} />
             <Stack.Screen name="closing-costs"         options={{ ...SCREEN_OPTIONS, title: "Closing Cost Calculator" }} />
             <Stack.Screen name="neighborhood-compare"  options={{ ...SCREEN_OPTIONS, title: "Compare Neighborhoods" }} />
+            <Stack.Screen name="dity-calculator"       options={{ ...SCREEN_OPTIONS, title: "DITY / PPM Calculator" }} />
+            <Stack.Screen name="tle-calculator"        options={{ ...SCREEN_OPTIONS, title: "TLE Calculator" }} />
+            <Stack.Screen name="open-houses"           options={{ ...SCREEN_OPTIONS, title: "Open Houses" }} />
           </Stack>
         </AuthProvider>
       </SafeAreaProvider>

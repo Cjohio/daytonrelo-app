@@ -33,28 +33,40 @@ const NEIGHBORHOODS: Neighborhood[] = [
   { name: "Trotwood",     medPrice: 115000, medRent: 950,  schools: "C",  schoolGpa: 2.0, wpafbMins: 25, downtown: 12, colIndex: 72,  walkable: false, va: true,  note: "Lowest prices in metro. Investment opportunity market. Not recommended for relocation buyers without local knowledge." },
 ];
 
-function schoolColor(g: number) {
-  if (g >= 4.0) return "#2E7D32";
-  if (g >= 3.3) return "#558B2F";
-  if (g >= 2.7) return "#F9A825";
-  return "#C62828";
+function gpaLabel(n: number) {
+  if (n >= 4.3) return "A+";
+  if (n >= 4.0) return "A";
+  if (n >= 3.7) return "A-";
+  if (n >= 3.3) return "B+";
+  if (n >= 3.0) return "B";
+  if (n >= 2.7) return "B-";
+  return "C";
 }
 
-function CompareStat({ label, a, b, format, higherBetter = true }: {
+// ─── CompareStat — 3-column version ──────────────────────────────────────────
+function CompareStat({ label, a, b, c, format, higherBetter = true }: {
   label: string;
   a: number;
   b: number;
+  c: number;
   format: (n: number) => string;
   higherBetter?: boolean;
 }) {
-  const aWins = higherBetter ? a >= b : a <= b;
-  const bWins = higherBetter ? b >= a : b <= a;
-  const tie   = a === b;
+  function isWinner(val: number) {
+    const others = [a, b, c].filter(v => v !== val);
+    return higherBetter
+      ? others.every(o => val >= o)
+      : others.every(o => val <= o);
+  }
+  const aw = isWinner(a);
+  const bw = isWinner(b);
+  const cw = isWinner(c);
   return (
-    <View style={c.statRow}>
-      <Text style={[c.statVal, !tie && aWins && c.statWin]}>{format(a)}</Text>
-      <Text style={c.statLabel}>{label}</Text>
-      <Text style={[c.statVal, !tie && bWins && c.statWin]}>{format(b)}</Text>
+    <View style={ct.row}>
+      <Text style={ct.rowLabel}>{label}</Text>
+      <Text style={[ct.val, aw && ct.valWin]}>{format(a)}</Text>
+      <Text style={[ct.val, bw && ct.valWin]}>{format(b)}</Text>
+      <Text style={[ct.val, cw && ct.valWin]}>{format(c)}</Text>
     </View>
   );
 }
@@ -62,99 +74,112 @@ function CompareStat({ label, a, b, format, higherBetter = true }: {
 export default function NeighborhoodCompareScreen() {
   const [selA, setSelA] = useState<string | null>(null);
   const [selB, setSelB] = useState<string | null>(null);
-  const [picking, setPicking] = useState<"A" | "B" | null>("A");
+  const [selC, setSelC] = useState<string | null>(null);
+  const [picking, setPicking] = useState<"A" | "B" | "C" | null>("A");
 
   const nbA = NEIGHBORHOODS.find(n => n.name === selA);
   const nbB = NEIGHBORHOODS.find(n => n.name === selB);
+  const nbC = NEIGHBORHOODS.find(n => n.name === selC);
 
   function pick(name: string) {
     if (picking === "A") { setSelA(name); setPicking("B"); }
-    else if (picking === "B") { setSelB(name); setPicking(null); }
+    else if (picking === "B") { setSelB(name); setPicking("C"); }
+    else if (picking === "C") { setSelC(name); setPicking(null); }
   }
 
-  function reset() { setSelA(null); setSelB(null); setPicking("A"); }
+  function reset() { setSelA(null); setSelB(null); setSelC(null); setPicking("A"); }
+
+  const SLOT_COLORS = { A: "#1A3A5C", B: Colors.black, C: "#2D5A1B" };
 
   return (
     <SafeAreaView style={s.safe} edges={["bottom"]}>
       <ScrollView style={s.scroll} contentContainerStyle={s.content} showsVerticalScrollIndicator={false}>
 
-        {/* Header / selection state */}
+        {/* 3-slot selection bar */}
         <View style={s.selectionBar}>
-          <TouchableOpacity
-            style={[s.selSlot, picking === "A" && s.selSlotActive, selA && s.selSlotFilled]}
-            onPress={() => setPicking("A")}
-          >
-            {selA ? <Text style={s.selSlotName}>{selA}</Text> : <Text style={s.selSlotPlaceholder}>Pick Area A</Text>}
-          </TouchableOpacity>
-          <View style={s.vsCircle}><Text style={s.vsText}>VS</Text></View>
-          <TouchableOpacity
-            style={[s.selSlot, picking === "B" && s.selSlotActive, selB && s.selSlotFilled]}
-            onPress={() => setPicking("B")}
-          >
-            {selB ? <Text style={s.selSlotName}>{selB}</Text> : <Text style={s.selSlotPlaceholder}>Pick Area B</Text>}
-          </TouchableOpacity>
+          {(["A", "B", "C"] as const).map(slot => {
+            const sel = slot === "A" ? selA : slot === "B" ? selB : selC;
+            const setter = slot === "A" ? setSelA : slot === "B" ? setSelB : setSelC;
+            const isActive = picking === slot;
+            return (
+              <TouchableOpacity
+                key={slot}
+                style={[s.selSlot, isActive && s.selSlotActive, sel && s.selSlotFilled,
+                        sel && { borderColor: SLOT_COLORS[slot] }]}
+                onPress={() => { setter(null); setPicking(slot); }}
+                activeOpacity={0.8}
+              >
+                <View style={[s.slotBadge, { backgroundColor: SLOT_COLORS[slot] }]}>
+                  <Text style={s.slotBadgeText}>{slot}</Text>
+                </View>
+                {sel
+                  ? <Text style={s.selSlotName} numberOfLines={1}>{sel}</Text>
+                  : <Text style={s.selSlotPlaceholder}>Pick Area</Text>}
+              </TouchableOpacity>
+            );
+          })}
         </View>
 
         {picking && (
           <Text style={s.pickInstruction}>
-            Tap a neighborhood below to select it for <Text style={{ color: Colors.gold }}>Area {picking}</Text>
+            Tap a neighborhood to fill <Text style={{ color: Colors.gold }}>Slot {picking}</Text>
           </Text>
         )}
 
         {/* Neighborhood picker */}
         <View style={s.pickerGrid}>
           {NEIGHBORHOODS.map(nb => {
-            const isA = selA === nb.name;
-            const isB = selB === nb.name;
+            const slotKey = nb.name === selA ? "A" : nb.name === selB ? "B" : nb.name === selC ? "C" : null;
             return (
               <TouchableOpacity
                 key={nb.name}
-                style={[s.pickerChip, isA && s.pickerChipA, isB && s.pickerChipB]}
+                style={[s.pickerChip,
+                  slotKey === "A" && { backgroundColor: SLOT_COLORS.A, borderColor: SLOT_COLORS.A },
+                  slotKey === "B" && { backgroundColor: SLOT_COLORS.B, borderColor: SLOT_COLORS.B },
+                  slotKey === "C" && { backgroundColor: SLOT_COLORS.C, borderColor: SLOT_COLORS.C },
+                ]}
                 onPress={() => pick(nb.name)}
-                disabled={(!picking && !isA && !isB)}
+                disabled={!picking && !slotKey}
                 activeOpacity={0.7}
               >
-                <Text style={[s.pickerChipText, (isA || isB) && s.pickerChipTextActive]}>
-                  {isA ? "A · " : isB ? "B · " : ""}{nb.name}
+                <Text style={[s.pickerChipText, slotKey && s.pickerChipTextActive]}>
+                  {slotKey ? `${slotKey} · ` : ""}{nb.name}
                 </Text>
               </TouchableOpacity>
             );
           })}
         </View>
 
-        {/* Comparison table */}
-        {nbA && nbB && (
+        {/* Comparison table — show when all 3 selected */}
+        {nbA && nbB && nbC && (
           <>
-            <View style={c.table}>
+            <View style={ct.table}>
               {/* Header */}
-              <View style={c.tableHeader}>
-                <Text style={c.tableHeaderA}>{nbA.name}</Text>
-                <View style={c.tableHeaderMid} />
-                <Text style={c.tableHeaderB}>{nbB.name}</Text>
+              <View style={ct.header}>
+                <Text style={ct.labelCol} />
+                <Text style={[ct.headerSlot, { color: "#6BB4FF" }]}>{nbA.name}</Text>
+                <Text style={[ct.headerSlot, { color: Colors.gold }]}>{nbB.name}</Text>
+                <Text style={[ct.headerSlot, { color: "#7ECC6C" }]}>{nbC.name}</Text>
               </View>
 
-              <CompareStat label="Median Home Price" a={nbA.medPrice} b={nbB.medPrice}
+              <CompareStat label="Median Price"     a={nbA.medPrice} b={nbB.medPrice} c={nbC.medPrice}
                 format={n => "$" + (n / 1000).toFixed(0) + "K"} higherBetter={false} />
-              <CompareStat label="Avg Monthly Rent" a={nbA.medRent} b={nbB.medRent}
+              <CompareStat label="Avg Rent / mo"    a={nbA.medRent}  b={nbB.medRent}  c={nbC.medRent}
                 format={n => "$" + n.toLocaleString()} higherBetter={false} />
-              <CompareStat label="School Rating" a={nbA.schoolGpa} b={nbB.schoolGpa}
-                format={n => n === 4.3 ? "A+" : n >= 4.0 ? "A" : n >= 3.7 ? "A-" : n >= 3.3 ? "B+" : n >= 3.0 ? "B" : n >= 2.7 ? "B-" : "C"} />
-              <CompareStat label="Commute to WPAFB" a={nbA.wpafbMins} b={nbB.wpafbMins}
+              <CompareStat label="School Rating"    a={nbA.schoolGpa} b={nbB.schoolGpa} c={nbC.schoolGpa}
+                format={gpaLabel} />
+              <CompareStat label="↔ WPAFB"          a={nbA.wpafbMins} b={nbB.wpafbMins} c={nbC.wpafbMins}
                 format={n => n + " min"} higherBetter={false} />
-              <CompareStat label="To Downtown Dayton" a={nbA.downtown} b={nbB.downtown}
+              <CompareStat label="↔ Downtown"       a={nbA.downtown}  b={nbB.downtown}  c={nbC.downtown}
                 format={n => n + " min"} higherBetter={false} />
-              <CompareStat label="Cost of Living Index" a={nbA.colIndex} b={nbB.colIndex}
+              <CompareStat label="Cost of Living"   a={nbA.colIndex}  b={nbB.colIndex}  c={nbC.colIndex}
                 format={n => n.toString()} higherBetter={false} />
 
-              {/* Notes */}
-              <View style={c.notes}>
-                <View style={c.noteCol}>
-                  <Text style={c.noteText}>{nbA.note}</Text>
-                </View>
-                <View style={c.noteDivider} />
-                <View style={c.noteCol}>
-                  <Text style={c.noteText}>{nbB.note}</Text>
-                </View>
+              {/* Notes row */}
+              <View style={ct.notesRow}>
+                <Text style={[ct.noteText, { color: "#6BB4FF" }]}>{nbA.note}</Text>
+                <Text style={[ct.noteText, { color: Colors.gold }]}>{nbB.note}</Text>
+                <Text style={[ct.noteText, { color: "#7ECC6C" }]}>{nbC.note}</Text>
               </View>
             </View>
 
@@ -186,17 +211,18 @@ const s = StyleSheet.create({
   scroll:  { flex: 1 },
   content: { padding: 16, paddingBottom: 40 },
 
-  selectionBar: { flexDirection: "row", alignItems: "center", gap: 10, marginBottom: 12 },
-  selSlot:      {
+  selectionBar: { flexDirection: "row", gap: 8, marginBottom: 12 },
+  selSlot: {
     flex: 1, borderWidth: 2, borderColor: Colors.border, borderRadius: 12, borderStyle: "dashed",
-    padding: 12, alignItems: "center", minHeight: 52, justifyContent: "center",
+    padding: 10, alignItems: "center", minHeight: 58, justifyContent: "center", gap: 4,
   },
-  selSlotActive:{ borderColor: Colors.gold, borderStyle: "solid" },
-  selSlotFilled:{ borderStyle: "solid", borderColor: Colors.black, backgroundColor: "#FFFBF0" },
-  selSlotName:  { fontWeight: "700", fontSize: 14, color: Colors.black },
-  selSlotPlaceholder: { color: Colors.gray, fontSize: 13 },
-  vsCircle:     { width: 34, height: 34, borderRadius: 17, backgroundColor: Colors.black, alignItems: "center", justifyContent: "center" },
-  vsText:       { color: Colors.gold, fontWeight: "800", fontSize: 11 },
+  selSlotActive:      { borderColor: Colors.gold, borderStyle: "solid" },
+  selSlotFilled:      { borderStyle: "solid", backgroundColor: "#0A0A0A" },
+  selSlotName:        { fontWeight: "700", fontSize: 12, color: Colors.white, textAlign: "center" },
+  selSlotPlaceholder: { color: Colors.gray, fontSize: 11 },
+
+  slotBadge:     { width: 20, height: 20, borderRadius: 10, alignItems: "center", justifyContent: "center" },
+  slotBadgeText: { color: Colors.white, fontSize: 10, fontWeight: "900" },
 
   pickInstruction: { color: Colors.gray, fontSize: 13, marginBottom: 10, textAlign: "center" },
 
@@ -205,10 +231,8 @@ const s = StyleSheet.create({
     paddingHorizontal: 12, paddingVertical: 7, borderRadius: 20,
     borderWidth: 1.5, borderColor: Colors.border, backgroundColor: Colors.white,
   },
-  pickerChipA:    { backgroundColor: "#1A3A5C", borderColor: "#1A3A5C" },
-  pickerChipB:    { backgroundColor: Colors.black, borderColor: Colors.black },
-  pickerChipText: { color: Colors.black, fontSize: 13, fontWeight: "600" },
-  pickerChipTextActive: { color: Colors.gold },
+  pickerChipText:       { color: Colors.black, fontSize: 13, fontWeight: "600" },
+  pickerChipTextActive: { color: Colors.white },
 
   resetBtn: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 6, marginBottom: 20, paddingVertical: 8 },
   resetBtnText: { color: Colors.gray, fontSize: 13 },
@@ -220,18 +244,18 @@ const s = StyleSheet.create({
   ctaBtnText:{ fontWeight: "700", fontSize: 14, color: Colors.black },
 });
 
-const c = StyleSheet.create({
-  table:       { borderRadius: 14, borderWidth: 1, borderColor: Colors.border, overflow: "hidden", marginBottom: 14 },
-  tableHeader: { flexDirection: "row", backgroundColor: Colors.black, padding: 12, alignItems: "center" },
-  tableHeaderA:{ flex: 1, color: Colors.gold, fontWeight: "800", fontSize: 14, textAlign: "center" },
-  tableHeaderMid: { width: 80 },
-  tableHeaderB:{ flex: 1, color: Colors.white, fontWeight: "800", fontSize: 14, textAlign: "center" },
-  statRow:     { flexDirection: "row", alignItems: "center", paddingVertical: 10, paddingHorizontal: 12, borderBottomWidth: 1, borderBottomColor: Colors.border },
-  statVal:     { flex: 1, textAlign: "center", fontWeight: "700", fontSize: 14, color: Colors.black },
-  statWin:     { color: Colors.gold },
-  statLabel:   { width: 120, textAlign: "center", fontSize: 11, color: Colors.gray, fontWeight: "600" },
-  notes:       { flexDirection: "row", padding: 12, gap: 10 },
-  noteCol:     { flex: 1 },
-  noteDivider: { width: 1, backgroundColor: Colors.border },
-  noteText:    { color: Colors.gray, fontSize: 12, lineHeight: 17 },
+const ct = StyleSheet.create({
+  table:  { borderRadius: 14, borderWidth: 1, borderColor: "#222", overflow: "hidden", marginBottom: 14, backgroundColor: "#0D0D0D" },
+
+  header:     { flexDirection: "row", backgroundColor: "#111", paddingVertical: 12, paddingHorizontal: 10, alignItems: "center" },
+  labelCol:   { width: 90, fontSize: 10 },
+  headerSlot: { flex: 1, textAlign: "center", fontWeight: "800", fontSize: 12 },
+
+  row:      { flexDirection: "row", alignItems: "center", paddingVertical: 11, paddingHorizontal: 10, borderTopWidth: 1, borderTopColor: "#1A1A1A" },
+  rowLabel: { width: 90, color: "#666", fontSize: 11, fontWeight: "600" },
+  val:      { flex: 1, textAlign: "center", color: "#AAA", fontSize: 13, fontWeight: "700" },
+  valWin:   { color: Colors.gold },
+
+  notesRow: { flexDirection: "row", gap: 8, padding: 12, borderTopWidth: 1, borderTopColor: "#1A1A1A" },
+  noteText: { flex: 1, fontSize: 11, lineHeight: 16, opacity: 0.8 },
 });

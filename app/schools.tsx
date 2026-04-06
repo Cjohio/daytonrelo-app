@@ -334,6 +334,11 @@ const tb = StyleSheet.create({
 
 // ─── Public district card ──────────────────────────────────────────────────────
 function DistrictCard({ d }: { d: PublicDistrict }) {
+  function openMap() {
+    const q = encodeURIComponent(`${d.name}, ${d.city}, Ohio`);
+    Linking.openURL(`https://maps.google.com/?q=${q}`);
+  }
+
   return (
     <View style={s.card}>
       <View style={s.cardTop}>
@@ -347,15 +352,25 @@ function DistrictCard({ d }: { d: PublicDistrict }) {
         <RatingBadge rating={d.rating} />
       </View>
       {d.note && <Text style={s.cardNote}>{d.note}</Text>}
-      <TouchableOpacity
-        style={s.linkBtn}
-        onPress={() => Linking.openURL(d.url)}
-        activeOpacity={0.8}
-      >
-        <Ionicons name="globe-outline" size={14} color={Colors.black} />
-        <Text style={s.linkBtnText}>Visit District Website</Text>
-        <Ionicons name="open-outline" size={13} color={Colors.black} />
-      </TouchableOpacity>
+      <View style={s.cardBtnRow}>
+        <TouchableOpacity
+          style={[s.linkBtn, { flex: 1 }]}
+          onPress={() => Linking.openURL(d.url)}
+          activeOpacity={0.8}
+        >
+          <Ionicons name="globe-outline" size={14} color={Colors.black} />
+          <Text style={s.linkBtnText}>Website</Text>
+          <Ionicons name="open-outline" size={13} color={Colors.black} />
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[s.mapBtn, { flex: 1 }]}
+          onPress={openMap}
+          activeOpacity={0.8}
+        >
+          <Ionicons name="map-outline" size={14} color={Colors.black} />
+          <Text style={s.mapBtnText}>View on Map</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
@@ -544,12 +559,20 @@ const s = StyleSheet.create({
   cardCity: { color: Colors.gray, fontSize: 12 },
   cardNote: { color: Colors.gray, fontSize: 13, lineHeight: 19, marginBottom: 12 },
 
+  cardBtnRow: { flexDirection: "row", gap: 8, marginTop: 4 },
   linkBtn: {
     flexDirection: "row", alignItems: "center", justifyContent: "center",
     gap: 6, backgroundColor: Colors.gold,
-    borderRadius: 10, paddingVertical: 10, marginTop: 4,
+    borderRadius: 10, paddingVertical: 10,
   },
   linkBtnText: { color: Colors.black, fontSize: 13, fontWeight: "700" },
+  mapBtn: {
+    flexDirection: "row", alignItems: "center", justifyContent: "center",
+    gap: 6, backgroundColor: "#E8F4FD",
+    borderRadius: 10, paddingVertical: 10,
+    borderWidth: 1, borderColor: "#B0D4F0",
+  },
+  mapBtnText: { color: Colors.black, fontSize: 13, fontWeight: "700" },
 
   disclaimer: {
     flexDirection: "row", alignItems: "flex-start", gap: 8,

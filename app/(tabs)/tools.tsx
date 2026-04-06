@@ -122,7 +122,7 @@ const ALL_TOOLS: Record<string, ToolDef> = {
   "compare-neighborhoods": {
     id: "compare-neighborhoods",
     title: "Compare Neighborhoods",
-    subtitle: "Side-by-side comparison of any 2 Dayton neighborhoods — price, schools, commute.",
+    subtitle: "3-way comparison of Dayton neighborhoods — price, schools, commute & cost of living.",
     icon: "git-compare-outline",
     route: "/neighborhood-compare",
   },
@@ -189,6 +189,27 @@ const ALL_TOOLS: Record<string, ToolDef> = {
     icon: "business-outline",
     route: "/employer-map",
   },
+  "dity-calculator": {
+    id: "dity-calculator",
+    title: "DITY / PPM Calculator",
+    subtitle: "Estimate your incentive pay for a Personally Procured Move — by pay grade and distance.",
+    icon: "cube-outline",
+    route: "/dity-calculator",
+  },
+  "tle-calculator": {
+    id: "tle-calculator",
+    title: "TLE Calculator",
+    subtitle: "Estimate Temporary Lodging Expense reimbursement for your CONUS PCS move.",
+    icon: "bed-outline",
+    route: "/tle-calculator",
+  },
+  "open-houses": {
+    id: "open-houses",
+    title: "Open Houses",
+    subtitle: "Browse upcoming open houses in the Dayton metro — filter by neighborhood.",
+    icon: "calendar-outline",
+    route: "/open-houses",
+  },
 };
 
 // ─── Sections per persona ──────────────────────────────────────────────────────
@@ -197,7 +218,7 @@ const PERSONA_SECTIONS: Record<Persona, SectionDef[]> = {
     {
       title: "Home Search",
       icon: "home-outline",
-      toolIds: ["mortgage-calculator", "closing-costs", "compare-neighborhoods", "neighborhood-quiz", "schools"],
+      toolIds: ["mortgage-calculator", "closing-costs", "compare-neighborhoods", "neighborhood-quiz", "schools", "open-houses"],
     },
     {
       title: "PCS Planning",
@@ -207,7 +228,7 @@ const PERSONA_SECTIONS: Record<Persona, SectionDef[]> = {
     {
       title: "Military Finance",
       icon: "calculator-outline",
-      toolIds: ["bah-calculator", "military-va"],
+      toolIds: ["bah-calculator", "military-va", "dity-calculator", "tle-calculator"],
     },
     {
       title: "Explore Dayton",
@@ -224,7 +245,7 @@ const PERSONA_SECTIONS: Record<Persona, SectionDef[]> = {
     {
       title: "Home Search",
       icon: "home-outline",
-      toolIds: ["mortgage-calculator", "rent-vs-buy", "closing-costs", "compare-neighborhoods", "neighborhood-quiz", "schools"],
+      toolIds: ["mortgage-calculator", "rent-vs-buy", "closing-costs", "compare-neighborhoods", "neighborhood-quiz", "schools", "open-houses"],
     },
     {
       title: "Your Relocation",
