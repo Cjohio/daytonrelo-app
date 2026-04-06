@@ -4,6 +4,7 @@ import {
   Alert, ScrollView, StyleSheet,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import * as StoreReview from "expo-store-review";
 import { submitLead } from "../../api/leads";
 import { LeadFormData, MoveTimeline, MOVE_TIMELINE_LABELS } from "../types/lead";
 import GoldButton from "./GoldButton";
@@ -59,7 +60,16 @@ export default function LeadCaptureForm() {
       Alert.alert(
         "Message Sent!",
         "Thanks for reaching out. Chris will be in touch within 2 hours.",
-        [{ text: "Got it!", onPress: () => setForm(EMPTY_FORM) }]
+        [{
+          text: "Got it!",
+          onPress: async () => {
+            setForm(EMPTY_FORM);
+            // Prompt for a store review after a successful lead submission
+            if (await StoreReview.isAvailableAsync()) {
+              await StoreReview.requestReview();
+            }
+          },
+        }]
       );
     } else {
       Alert.alert("Something went wrong", result.error ?? "Please try again.");

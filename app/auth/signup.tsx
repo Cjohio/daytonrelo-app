@@ -300,6 +300,18 @@ export default function SignupScreen() {
           ))}
         </View>
 
+        {/* Terms agreement */}
+        <Text style={s.termsText}>
+          By creating an account you agree to our{" "}
+          <Text style={s.termsLink} onPress={() => router.push("/terms-of-service" as any)}>
+            Terms of Service
+          </Text>
+          {" "}and{" "}
+          <Text style={s.termsLink} onPress={() => router.push("/privacy-policy" as any)}>
+            Privacy Policy
+          </Text>.
+        </Text>
+
         {/* CTA */}
         <TouchableOpacity style={s.primaryBtn} onPress={handleSignup} disabled={loading}>
           {loading
@@ -502,4 +514,13 @@ const s = StyleSheet.create({
   googleIcon:    { fontSize: 18, fontWeight: "800", color: "#4285F4" },
   googleBtnText: { fontSize: 15, fontWeight: "600", color: Colors.black },
   googleNote:    { fontSize: 11, color: Colors.gray, textAlign: "center", marginTop: 8, lineHeight: 16 },
+
+  // Terms agreement
+  termsText: {
+    fontSize: 12, color: Colors.gray, textAlign: "center",
+    lineHeight: 18, marginTop: 16,
+  },
+  termsLink: {
+    color: Colors.gold, fontWeight: "600",
+  },
 });
