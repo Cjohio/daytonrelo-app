@@ -93,6 +93,7 @@ export default function RootLayout() {
             <Stack.Screen name="edit-profile"          options={{ ...SCREEN_OPTIONS, title: "Edit Profile" }} />
             <Stack.Screen name="dayton-events"         options={{ ...SCREEN_OPTIONS, title: "Dayton Events" }} />
             <Stack.Screen name="privacy-policy"        options={{ ...SCREEN_OPTIONS, title: "Privacy Policy" }} />
+            <Stack.Screen name="terms-of-service"      options={{ ...SCREEN_OPTIONS, title: "Terms of Service" }} />
             <Stack.Screen name="pcs-timeline"          options={{ ...SCREEN_OPTIONS, title: "PCS Timeline" }} />
             <Stack.Screen name="on-base-vs-off"        options={{ ...SCREEN_OPTIONS, title: "On-Base vs Off-Base" }} />
             <Stack.Screen name="relo-package"          options={{ ...SCREEN_OPTIONS, title: "Relocation Package" }} />

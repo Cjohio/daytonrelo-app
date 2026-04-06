@@ -1,4 +1,5 @@
 import { ScrollView, View, Text, StyleSheet, TouchableOpacity, Linking } from "react-native";
+import { router } from "expo-router";
 import BrandHeader, { BackBtn } from "../shared/components/BrandHeader";
 import { Colors } from "../shared/theme/colors";
 
@@ -122,6 +123,15 @@ export default function PrivacyPolicyScreen() {
         </Body>
       </Section>
 
+      {/* Link to Terms of Service */}
+      <TouchableOpacity
+        style={s.tosLink}
+        onPress={() => router.push("/terms-of-service" as any)}
+        activeOpacity={0.7}
+      >
+        <Text style={s.tosLinkText}>View Terms of Service →</Text>
+      </TouchableOpacity>
+
       <View style={{ height: 40 }} />
     </ScrollView>
   );
@@ -166,4 +176,11 @@ const s = StyleSheet.create({
   },
   bold: { fontWeight: "700", color: Colors.black },
   link: { color: Colors.gold, fontWeight: "600" },
+  tosLink: {
+    marginTop: 28, marginHorizontal: 20, padding: 14,
+    backgroundColor: Colors.offWhite, borderRadius: 10,
+    borderWidth: 1, borderColor: Colors.border,
+    alignItems: "center",
+  },
+  tosLinkText: { color: Colors.gold, fontWeight: "700", fontSize: 14 },
 });
