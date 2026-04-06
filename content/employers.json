@@ -1,0 +1,79 @@
+[
+  {
+    "id": "wpafb",
+    "name": "Wright-Patterson Air Force Base",
+    "industry": "U.S. Air Force / Defense",
+    "employees": "30,000+",
+    "address": "2000 Allbrook Dr, Fairborn, OH 45433",
+    "nearestNeighborhoods": ["Fairborn", "Beavercreek", "Huber Heights"],
+    "avgCommute": "5–20 min depending on neighborhood",
+    "mapsUrl": "https://maps.google.com/?q=Wright-Patterson+Air+Force+Base+Ohio",
+    "notes": "Largest single-site employer in Ohio. Military housing on-base available."
+  },
+  {
+    "id": "l3harris",
+    "name": "L3Harris Technologies",
+    "industry": "Defense / Aerospace",
+    "employees": "10,000+",
+    "address": "1025 W NASA Blvd, Melbourne, FL (Dayton campus: Beavercreek)",
+    "nearestNeighborhoods": ["Beavercreek", "Fairborn", "Centerville"],
+    "avgCommute": "10–20 min",
+    "mapsUrl": "https://maps.google.com/?q=L3Harris+Technologies+Beavercreek+Ohio",
+    "notes": "Major WPAFB contractor. Many employees prefer Beavercreek for proximity."
+  },
+  {
+    "id": "kettering-health",
+    "name": "Kettering Health",
+    "industry": "Healthcare",
+    "employees": "14,000+",
+    "address": "3535 Southern Blvd, Kettering, OH 45429",
+    "nearestNeighborhoods": ["Kettering", "Centerville", "Oakwood"],
+    "avgCommute": "8–18 min",
+    "mapsUrl": "https://maps.google.com/?q=Kettering+Health+Main+Campus",
+    "notes": "Largest healthcare system in the region. Kettering and Centerville are ideal."
+  },
+  {
+    "id": "premier-health",
+    "name": "Premier Health",
+    "industry": "Healthcare",
+    "employees": "13,000+",
+    "address": "One Wyoming St, Dayton, OH 45409",
+    "nearestNeighborhoods": ["Oakwood", "Kettering", "Dayton"],
+    "avgCommute": "8–20 min",
+    "mapsUrl": "https://maps.google.com/?q=Miami+Valley+Hospital+Dayton+Ohio",
+    "notes": "Downtown Dayton footprint. Oakwood is the premium choice for proximity."
+  },
+  {
+    "id": "careSource",
+    "name": "CareSource",
+    "industry": "Managed Care / Insurance",
+    "employees": "5,000+",
+    "address": "230 N Main St, Dayton, OH 45402",
+    "nearestNeighborhoods": ["Oakwood", "Kettering", "Huber Heights"],
+    "avgCommute": "12–25 min",
+    "mapsUrl": "https://maps.google.com/?q=CareSource+Dayton+Ohio",
+    "notes": "Headquarters downtown. Growing employer with hybrid work options."
+  },
+  {
+    "id": "reynolds-reynolds",
+    "name": "Reynolds & Reynolds",
+    "industry": "Automotive Software",
+    "employees": "5,000+",
+    "address": "One Reynolds Way, Kettering, OH 45430",
+    "nearestNeighborhoods": ["Kettering", "Beavercreek", "Centerville"],
+    "avgCommute": "10–20 min",
+    "mapsUrl": "https://maps.google.com/?q=Reynolds+and+Reynolds+Kettering+Ohio",
+    "notes": "Global HQ in Kettering. Growing campus, many tech roles."
+  },
+  {
+    "id": "wright-state",
+    "name": "Wright State University",
+    "industry": "Higher Education",
+    "employees": "3,500+",
+    "address": "3640 Colonel Glenn Hwy, Fairborn, OH 45435",
+    "nearestNeighborhoods": ["Fairborn", "Beavercreek", "Huber Heights"],
+    "avgCommute": "5–15 min",
+    "mapsUrl": "https://maps.google.com/?q=Wright+State+University+Fairborn+Ohio",
+    "notes": "Adjacent to WPAFB. Strong STEM focus. Ideal for dual-career military families."
+  }
+]
