@@ -12,6 +12,7 @@ import { Colors } from "../shared/theme/colors";
 import BrandHeader, { BackBtn } from "../shared/components/BrandHeader";
 import AppTabBar from "../shared/components/AppTabBar";
 import ChatFAB from "../shared/components/ChatFAB";
+import { getPersona } from "../shared/persona";
 
 // ─── Checklist data ────────────────────────────────────────────────────────────
 const SECTIONS = [
@@ -138,7 +139,14 @@ const ALL_ITEMS = SECTIONS.flatMap(s => s.categories.flatMap(c => c.items));
 export default function FirstThirtyDaysScreen() {
   const router = useRouter();
   const [checked, setChecked] = useState<Set<string>>(new Set());
-  const [activeSection, setActiveSection] = useState<string>("general");
+
+  // Auto-select section based on persona — military → "military", others → "general"
+  const defaultSection = (() => {
+    const p = getPersona();
+    if (p === "military") return "military";
+    return "general";
+  })();
+  const [activeSection, setActiveSection] = useState<string>(defaultSection);
 
   const total    = ALL_ITEMS.length;
   const done     = checked.size;

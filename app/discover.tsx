@@ -130,6 +130,26 @@ export default function DiscoverHub() {
           </Text>
         </View>
 
+        {/* ── Eats Guide Featured Card ───────────────────────────────────── */}
+        <TouchableOpacity
+          style={s.eatsCard}
+          onPress={() => router.push("/(tabs)/eats" as any)}
+          activeOpacity={0.85}
+        >
+          <View style={s.eatsCardLeft}>
+            <View style={s.eatsIconWrap}>
+              <Ionicons name="restaurant" size={26} color={Colors.black} />
+            </View>
+            <View style={s.eatsCardText}>
+              <Text style={s.eatsCardTitle}>Dayton Eats Guide</Text>
+              <Text style={s.eatsCardSub}>
+                Best local restaurants, hidden gems, and neighborhood favorites — curated for you.
+              </Text>
+            </View>
+          </View>
+          <Ionicons name="chevron-forward" size={20} color={Colors.black} />
+        </TouchableOpacity>
+
         {/* ── Local Quick Links ──────────────────────────────────────────── */}
         <Section title="Explore Your City">
           <View style={s.linkGrid}>
@@ -337,6 +357,18 @@ const s = StyleSheet.create({
     marginBottom: 16, borderLeftWidth: 3,
     borderLeftColor: Colors.gold, paddingLeft: 10,
   },
+
+  // Eats Guide feature card
+  eatsCard: {
+    flexDirection: "row", alignItems: "center", backgroundColor: Colors.gold,
+    borderRadius: 16, padding: 16, marginHorizontal: 16, marginBottom: 20, gap: 12,
+  },
+  eatsCardLeft:  { flex: 1, flexDirection: "row", alignItems: "center", gap: 12 },
+  eatsIconWrap:  { width: 48, height: 48, borderRadius: 12, backgroundColor: Colors.white,
+                   alignItems: "center", justifyContent: "center", flexShrink: 0 },
+  eatsCardText:  { flex: 1 },
+  eatsCardTitle: { fontSize: 16, fontWeight: "800", color: Colors.black, marginBottom: 3 },
+  eatsCardSub:   { fontSize: 12, color: Colors.black, opacity: 0.75, lineHeight: 17 },
 
   linkGrid: { flexDirection: "row", flexWrap: "wrap", gap: 10 },
   linkTile: {

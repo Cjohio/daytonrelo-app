@@ -2,7 +2,7 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import BrandHeader, { BackBtn } from "../../shared/components/BrandHeader";
 import {
   View, Text, ScrollView, TouchableOpacity,
-  StyleSheet, useWindowDimensions,
+  StyleSheet, useWindowDimensions, Share,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
@@ -89,7 +89,15 @@ export default function NeighborhoodDetail() {
           <Ionicons name="chevron-back" size={22} color={Colors.gold} />
         </TouchableOpacity>
         <Text style={styles.headerTitle} numberOfLines={1}>{hood.name.toUpperCase()}</Text>
-        <View style={{ width: 36 }} />
+        <TouchableOpacity
+          style={styles.backBtn}
+          onPress={() => Share.share({
+            title: `${hood.name} — Dayton Relo`,
+            message: `Check out ${hood.name} on Dayton Relo!\n\n📍 ${hood.tagline}\n💰 Median: $${hood.medianPrice.toLocaleString()} · Rent: $${hood.avgRent.toLocaleString()}/mo\n🚗 ${hood.driveToWPAFB} to WPAFB\n\nExplore with Chris Jurgens: (937) 241-3484\ndaytonrelo://neighborhood/${hood.id}`,
+          })}
+        >
+          <Ionicons name="share-outline" size={22} color={Colors.gold} />
+        </TouchableOpacity>
       </View>
 
       <ScrollView style={styles.scroll} contentContainerStyle={styles.content}>

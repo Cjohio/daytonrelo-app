@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from "react-native";
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, TextInput } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
@@ -7,7 +7,47 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import BrandHeader, { BackBtn } from "../shared/components/BrandHeader";
 import { Colors } from "../shared/theme/colors";
 
-const STORAGE_KEY = "pcs_timeline_checked";
+const STORAGE_KEY        = "pcs_timeline_checked";
+const ORDERS_DATE_KEY    = "pcs_orders_report_date";
+
+// ─── Parse MM/DD/YYYY or YYYY-MM-DD → Date | null ─────────────────────────────
+function parseDate(str: string): Date | null {
+  const mdy = str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if (mdy) {
+    const d = new Date(+mdy[3], +mdy[1] - 1, +mdy[2]);
+    return isNaN(d.getTime()) ? null : d;
+  }
+  const iso = str.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (iso) {
+    const d = new Date(+iso[1], +iso[2] - 1, +iso[3]);
+    return isNaN(d.getTime()) ? null : d;
+  }
+  return null;
+}
+
+const MONTH_SHORT = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+
+function fmtDate(d: Date) {
+  return `${MONTH_SHORT[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
+}
+
+// Days offset from reporting date for each phase window
+const PHASE_OFFSETS: Record<string, { start: number; end: number }> = {
+  "6mo":     { start: -210, end: -180 },
+  "3mo":     { start: -120, end:  -90 },
+  "60d":     { start:  -75, end:  -55 },
+  "30d":     { start:  -35, end:  -25 },
+  "arrival": { start:    0, end:   14 },
+};
+
+function getPhaseWindow(reportDate: Date, phaseId: string): string | null {
+  const offsets = PHASE_OFFSETS[phaseId];
+  if (!offsets) return null;
+  const start = new Date(reportDate.getTime() + offsets.start * 86400000);
+  const end   = new Date(reportDate.getTime() + offsets.end   * 86400000);
+  if (phaseId === "arrival") return `Starting ${fmtDate(start)}`;
+  return `${fmtDate(start)} – ${fmtDate(end)}`;
+}
 
 // ─── Timeline phases ───────────────────────────────────────────────────────────
 const PHASES = [
@@ -101,17 +141,26 @@ const PHASES = [
 ];
 
 export default function PCSTimelineScreen() {
-  const [checked, setChecked] = useState<Set<string>>(new Set());
-  const [expanded, setExpanded] = useState<Set<string>>(new Set(["6mo"]));
+  const [checked,     setChecked]     = useState<Set<string>>(new Set());
+  const [expanded,    setExpanded]    = useState<Set<string>>(new Set(["6mo"]));
+  const [ordersInput, setOrdersInput] = useState("");
+  const [reportDate,  setReportDate]  = useState<Date | null>(null);
 
-  // Load saved progress on mount
+  // Load saved progress + orders date on mount
   useEffect(() => {
-    AsyncStorage.getItem(STORAGE_KEY).then(raw => {
-      if (raw) {
-        try { setChecked(new Set(JSON.parse(raw))); } catch {}
-      }
+    AsyncStorage.multiGet([STORAGE_KEY, ORDERS_DATE_KEY]).then(pairs => {
+      const [checkRaw, dateRaw] = pairs.map(p => p[1]);
+      if (checkRaw) { try { setChecked(new Set(JSON.parse(checkRaw))); } catch {} }
+      if (dateRaw)  { setOrdersInput(dateRaw); setReportDate(parseDate(dateRaw)); }
     });
   }, []);
+
+  function handleDateChange(text: string) {
+    setOrdersInput(text);
+    const parsed = parseDate(text);
+    setReportDate(parsed);
+    if (parsed) AsyncStorage.setItem(ORDERS_DATE_KEY, text).catch(() => {});
+  }
 
   function toggleItem(id: string) {
     setChecked(prev => {
@@ -150,6 +199,34 @@ export default function PCSTimelineScreen() {
           <Text style={s.progressSub}>{doneCount} of {totalItems} tasks complete</Text>
         </View>
 
+        {/* Orders / Reporting Date Input */}
+        <View style={s.dateCard}>
+          <View style={s.dateCardHeader}>
+            <Ionicons name="calendar" size={16} color={Colors.gold} />
+            <Text style={s.dateCardTitle}>Enter Your Report Date</Text>
+          </View>
+          <Text style={s.dateCardSub}>
+            We'll calculate actual calendar dates for each phase.
+          </Text>
+          <TextInput
+            style={s.dateInput}
+            placeholder="MM/DD/YYYY  (e.g. 09/15/2025)"
+            placeholderTextColor={Colors.grayLight}
+            value={ordersInput}
+            onChangeText={handleDateChange}
+            keyboardType="numbers-and-punctuation"
+            maxLength={10}
+          />
+          {reportDate && (
+            <View style={s.dateConfirm}>
+              <Ionicons name="checkmark-circle" size={14} color="#2ECC71" />
+              <Text style={s.dateConfirmText}>
+                Reporting: {fmtDate(reportDate)} · dates shown below
+              </Text>
+            </View>
+          )}
+        </View>
+
         <Text style={s.intro}>
           Tap each phase to expand it. Check off tasks as you complete them.
           Your progress is saved automatically.
@@ -170,6 +247,11 @@ export default function PCSTimelineScreen() {
                 </View>
                 <View style={s.phaseHeaderText}>
                   <Text style={s.phaseLabel}>{phase.label}</Text>
+                  {reportDate && (
+                    <Text style={[s.phaseDateHint, { color: phase.color }]}>
+                      {getPhaseWindow(reportDate, phase.id)}
+                    </Text>
+                  )}
                   <Text style={s.phaseSub}>{phaseChecked}/{phase.items.length} done</Text>
                 </View>
                 <Ionicons
@@ -264,6 +346,19 @@ const s = StyleSheet.create({
   phaseHeaderText:{ flex: 1 },
   phaseLabel:     { fontWeight: "700", fontSize: 15, color: Colors.black },
   phaseSub:       { color: Colors.gray, fontSize: 12, marginTop: 1 },
+  phaseDateHint:  { fontSize: 11, fontWeight: "600", marginTop: 1 },
+
+  // Orders date card
+  dateCard:         { backgroundColor: "#FFFBEB", borderWidth: 1, borderColor: "#F5E088",
+                      borderRadius: 14, padding: 16, marginBottom: 16 },
+  dateCardHeader:   { flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 4 },
+  dateCardTitle:    { fontSize: 14, fontWeight: "700", color: Colors.black },
+  dateCardSub:      { fontSize: 12, color: Colors.gray, marginBottom: 10, lineHeight: 18 },
+  dateInput:        { borderWidth: 1.5, borderColor: Colors.border, borderRadius: 10,
+                      paddingHorizontal: 14, paddingVertical: 11, fontSize: 15,
+                      color: Colors.black, backgroundColor: Colors.white },
+  dateConfirm:      { flexDirection: "row", alignItems: "center", gap: 6, marginTop: 8 },
+  dateConfirmText:  { fontSize: 12, color: Colors.gray, flex: 1 },
   phaseBody:      { backgroundColor: "#FAFAFA", paddingHorizontal: 14, paddingBottom: 10 },
 
   item: {

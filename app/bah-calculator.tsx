@@ -68,6 +68,13 @@ export default function BAHCalculatorScreen() {
           Estimate your Basic Allowance for Housing at Wright-Patterson AFB
           (ZIP 45431) based on your pay grade and dependency status.
         </Text>
+        <View style={styles.dataBadge}>
+          <Ionicons name="calendar-outline" size={13} color={Colors.gold} />
+          <Text style={styles.dataBadgeText}>
+            2025 DFAS rates · Verify current rates at{" "}
+            <Text style={styles.dataBadgeLink}>dfas.mil</Text>
+          </Text>
+        </View>
       </View>
 
       {!result ? (
@@ -242,4 +249,11 @@ const styles = StyleSheet.create({
   resultDisclaimer:  { color: "#555", fontSize: 11, lineHeight: 16, textAlign: "center" },
   shareBtn:          { marginTop: 10, paddingVertical: 10, alignItems: "center" },
   shareBtnText:      { color: Colors.gold, fontSize: 14, fontWeight: "600" },
+
+  // Data freshness badge
+  dataBadge:         { flexDirection: "row", alignItems: "center", gap: 6, marginTop: 10,
+                       backgroundColor: "#FFF9E6", borderWidth: 1, borderColor: "#F5E088",
+                       borderRadius: 8, paddingHorizontal: 10, paddingVertical: 6 },
+  dataBadgeText:     { fontSize: 11, color: Colors.gray, flex: 1, lineHeight: 16 },
+  dataBadgeLink:     { color: Colors.gold, fontWeight: "600" },
 });

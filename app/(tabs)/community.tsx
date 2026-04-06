@@ -134,26 +134,47 @@ export default function CommunityScreen() {
     return () => { supabase.removeChannel(channel); };
   }, [activeCategory, fetchPosts]);
 
-  // ── Admin delete post ─────────────────────────────────────────────────────
+  // ── Post options (long-press or trash icon) ───────────────────────────────
   const handleLongPress = (post: Post) => {
-    const canDelete = isChris || post.user_id === user?.id;
-    if (!canDelete) return;
+    if (!user) return; // must be logged in to see options
+    const canDelete = isChris || post.user_id === user.id;
+    const isOwnPost = post.user_id === user.id;
 
-    Alert.alert(
-      "Delete Post",
-      "Are you sure you want to delete this post? This cannot be undone.",
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Delete",
-          style: "destructive",
-          onPress: async () => {
-            await supabase.from("community_posts").delete().eq("id", post.id);
-            setPosts(prev => prev.filter(p => p.id !== post.id));
-          },
+    const buttons: any[] = [{ text: "Cancel", style: "cancel" }];
+
+    if (canDelete) {
+      buttons.push({
+        text: "Delete Post",
+        style: "destructive",
+        onPress: async () => {
+          await supabase.from("community_posts").delete().eq("id", post.id);
+          setPosts(prev => prev.filter(p => p.id !== post.id));
         },
-      ]
-    );
+      });
+    }
+
+    if (!isOwnPost) {
+      buttons.push({
+        text: "Report Post",
+        onPress: () => {
+          // Log the report to Supabase (best-effort) and acknowledge to user
+          supabase.from("reported_posts").insert({
+            post_id:     post.id,
+            reported_by: user.id,
+            reason:      "user_report",
+            created_at:  new Date().toISOString(),
+          }).then(() => {
+            Alert.alert(
+              "Post Reported",
+              "Thanks for flagging this. We'll review it and take action if needed.",
+              [{ text: "OK" }]
+            );
+          });
+        },
+      });
+    }
+
+    Alert.alert("Post Options", undefined, buttons);
   };
 
   // ── Upvote toggle ─────────────────────────────────────────────────────────
@@ -224,9 +245,13 @@ export default function CommunityScreen() {
             </View>
           </View>
 
-          {canDelete && (
+          {user && (
             <TouchableOpacity onPress={() => handleLongPress(item)} style={styles.deleteBtn}>
-              <Ionicons name="trash-outline" size={16} color={Colors.grayLight} />
+              <Ionicons
+                name={canDelete ? "trash-outline" : "ellipsis-horizontal"}
+                size={16}
+                color={Colors.grayLight}
+              />
             </TouchableOpacity>
           )}
         </View>
