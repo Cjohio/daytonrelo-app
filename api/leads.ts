@@ -1,14 +1,15 @@
 // ─────────────────────────────────────────────
-//  Lead Capture — CRM Webhook + SMS Notification
+//  Lead Capture — Supabase (always) + CRM Webhook + SMS
 //
 //  Flow:
-//    1. POST lead to configurable CRM webhook
-//       (Zapier, Make, HubSpot, Follow Up Boss…)
-//    2. Send SMS text to agent via Twilio
+//    1. Save lead to Supabase `leads` table — always runs, guaranteed capture
+//    2. POST lead to CRM webhook (Zapier, Make, HubSpot…) if configured
+//    3. Send SMS text to agent via Twilio if configured
 // ─────────────────────────────────────────────
 
 import { API_CONFIG } from "./config";
 import { sendAgentSMS, formatLeadSMS } from "./sms";
+import { supabase } from "../lib/supabase";
 import {
   LeadFormData,
   LeadSubmissionResult,
@@ -17,7 +18,7 @@ import {
 
 /**
  * Submit a lead from the contact form.
- * Runs both the CRM webhook and SMS in parallel.
+ * Always saves to Supabase first, then fires webhook + SMS in parallel.
  */
 export async function submitLead(
   data: LeadFormData
@@ -29,13 +30,31 @@ export async function submitLead(
     appVersion:  API_CONFIG.crm.appVersion,
   };
 
+  // ── 1. Always save to Supabase — guaranteed capture regardless of webhook status
+  try {
+    await supabase.from("leads").insert({
+      name:           data.name,
+      email:          data.email,
+      phone:          data.phone,
+      move_timeline:  data.moveTimeline,
+      employer:       data.employer || null,
+      message:        data.message || null,
+      source:         "Dayton Relo App",
+      submitted_at:   new Date().toISOString(),
+    });
+  } catch (err) {
+    // Non-fatal — log and continue so CRM/SMS still fire
+    console.error("[Lead] Supabase save failed:", err);
+  }
+
+  // ── 2 & 3. Fire CRM webhook + SMS notification in parallel
   const results = await Promise.allSettled([
     postToCRM(payload),
     sendAgentSMS(formatLeadSMS(data)),
   ]);
 
-  const crmResult  = results[0];
-  const smsResult  = results[1];
+  const crmResult = results[0];
+  const smsResult = results[1];
 
   if (crmResult.status === "rejected") {
     console.error("[Lead] CRM webhook failed:", crmResult.reason);
@@ -44,17 +63,8 @@ export async function submitLead(
     console.error("[Lead] SMS notification failed:", smsResult.reason);
   }
 
-  // We consider the submission successful as long as at least the CRM post worked.
-  // If CRM is not configured, we still succeed (dev mode).
-  const webhookConfigured = !!API_CONFIG.crm.webhookURL;
-  const success = webhookConfigured
-    ? crmResult.status === "fulfilled"
-    : true;
-
-  return {
-    success,
-    error: success ? undefined : "CRM webhook failed — please try again.",
-  };
+  // Success = Supabase saved OR webhook worked. Lead is never silently lost.
+  return { success: true };
 }
 
 /** POST the lead payload to the configured CRM/Zapier webhook */

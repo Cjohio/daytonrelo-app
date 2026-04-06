@@ -182,6 +182,13 @@ const ALL_TOOLS: Record<string, ToolDef> = {
     icon: "construct-outline",
     route: "/local-services",
   },
+  "employer-map": {
+    id: "employer-map",
+    title: "Dayton Employer Map",
+    subtitle: "Top employers by industry — locations, employee count, and nearest neighborhoods.",
+    icon: "business-outline",
+    route: "/employer-map",
+  },
 };
 
 // ─── Sections per persona ──────────────────────────────────────────────────────
@@ -195,7 +202,7 @@ const PERSONA_SECTIONS: Record<Persona, SectionDef[]> = {
     {
       title: "PCS Planning",
       icon: "checkbox-outline",
-      toolIds: ["pcs-timeline", "first-30-days", "on-base-off", "commute-finder"],
+      toolIds: ["pcs-timeline", "first-30-days", "on-base-off", "commute-finder", "employer-map"],
     },
     {
       title: "Military Finance",
@@ -222,7 +229,7 @@ const PERSONA_SECTIONS: Record<Persona, SectionDef[]> = {
     {
       title: "Your Relocation",
       icon: "briefcase-outline",
-      toolIds: ["relo-package", "temp-housing", "commute-finder", "cost-of-living"],
+      toolIds: ["relo-package", "temp-housing", "commute-finder", "cost-of-living", "employer-map"],
     },
     {
       title: "Getting Settled",

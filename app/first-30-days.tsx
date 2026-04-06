@@ -1,7 +1,10 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import {
   View, Text, ScrollView, TouchableOpacity, StyleSheet,
 } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+const STORAGE_KEY = "first_30_days_checked";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
@@ -141,10 +144,20 @@ export default function FirstThirtyDaysScreen() {
   const done     = checked.size;
   const pct      = total > 0 ? Math.round((done / total) * 100) : 0;
 
+  // Load saved progress on mount
+  useEffect(() => {
+    AsyncStorage.getItem(STORAGE_KEY).then(raw => {
+      if (raw) {
+        try { setChecked(new Set(JSON.parse(raw))); } catch {}
+      }
+    });
+  }, []);
+
   function toggle(id: string) {
     setChecked(prev => {
       const next = new Set(prev);
       next.has(id) ? next.delete(id) : next.add(id);
+      AsyncStorage.setItem(STORAGE_KEY, JSON.stringify([...next]));
       return next;
     });
   }

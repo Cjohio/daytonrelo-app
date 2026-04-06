@@ -1,10 +1,13 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import BrandHeader, { BackBtn } from "../shared/components/BrandHeader";
 import { Colors } from "../shared/theme/colors";
+
+const STORAGE_KEY = "pcs_timeline_checked";
 
 // ─── Timeline phases ───────────────────────────────────────────────────────────
 const PHASES = [
@@ -101,10 +104,20 @@ export default function PCSTimelineScreen() {
   const [checked, setChecked] = useState<Set<string>>(new Set());
   const [expanded, setExpanded] = useState<Set<string>>(new Set(["6mo"]));
 
+  // Load saved progress on mount
+  useEffect(() => {
+    AsyncStorage.getItem(STORAGE_KEY).then(raw => {
+      if (raw) {
+        try { setChecked(new Set(JSON.parse(raw))); } catch {}
+      }
+    });
+  }, []);
+
   function toggleItem(id: string) {
     setChecked(prev => {
       const next = new Set(prev);
       next.has(id) ? next.delete(id) : next.add(id);
+      AsyncStorage.setItem(STORAGE_KEY, JSON.stringify([...next]));
       return next;
     });
   }
@@ -139,7 +152,7 @@ export default function PCSTimelineScreen() {
 
         <Text style={s.intro}>
           Tap each phase to expand it. Check off tasks as you complete them.
-          Your progress is saved in this session.
+          Your progress is saved automatically.
         </Text>
 
         {PHASES.map(phase => {
