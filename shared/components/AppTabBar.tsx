@@ -8,9 +8,9 @@ import { Colors } from "../theme/colors";
 
 const TABS = [
   {
-    label:      "Neighborhoods",
-    icon:       "location-outline"       as const,
-    activeIcon: "location"              as const,
+    label:      "Search",
+    icon:       "search-outline"         as const,
+    activeIcon: "search"                as const,
     route:      "/(tabs)/explore",
   },
   {
@@ -33,8 +33,8 @@ const TABS = [
   },
   {
     label:      "Contact",
-    icon:       "person-outline"         as const,
-    activeIcon: "person"                as const,
+    icon:       "call-outline"           as const,
+    activeIcon: "call"                  as const,
     route:      "/(tabs)/contact",
   },
 ];

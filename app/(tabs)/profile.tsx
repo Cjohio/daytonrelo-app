@@ -13,14 +13,14 @@ import BrandHeader, { BackBtn } from "../../shared/components/BrandHeader";
 
 // ─── Persona label map ────────────────────────────────────────────────────────
 const PERSONA_LABEL: Record<string, string> = {
-  military:  "Military / WPAFB",
-  corporate: "Corporate Relo",
-  general:   "General Buyer",
+  military:   "Military / WPAFB",
+  relocation: "Corporate Relo",
+  discover:   "Dayton Resident",
 };
 const PERSONA_ICON: Record<string, string> = {
-  military:  "shield-checkmark",
-  corporate: "briefcase",
-  general:   "home",
+  military:   "shield-checkmark",
+  relocation: "briefcase",
+  discover:   "home",
 };
 
 // ─── Item type icon map ───────────────────────────────────────────────────────

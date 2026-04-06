@@ -10,6 +10,7 @@ import { Colors } from "../../shared/theme/colors";
 import { useAuth } from "../../shared/auth/AuthContext";
 import { supabase } from "../../lib/supabase";
 import BrandHeader from "../../shared/components/BrandHeader";
+import { PostRowSkeleton } from "../../shared/components/SkeletonLoader";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const CHRIS_EMAIL = "chris@cjohio.com";
@@ -264,7 +265,17 @@ export default function CommunityScreen() {
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
-      <BrandHeader />
+      <BrandHeader
+        right={user ? (
+          <TouchableOpacity
+            style={styles.editNameBtn}
+            onPress={() => setShowUsername(true)}
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          >
+            <Ionicons name="person-circle-outline" size={22} color={Colors.gold} />
+          </TouchableOpacity>
+        ) : undefined}
+      />
 
       {/* Category tabs */}
       <ScrollView
@@ -299,8 +310,8 @@ export default function CommunityScreen() {
 
       {/* Posts list */}
       {loading ? (
-        <View style={styles.centered}>
-          <ActivityIndicator color={Colors.gold} size="large" />
+        <View style={{ flex: 1 }}>
+          {[1, 2, 3, 4].map((i) => <PostRowSkeleton key={i} />)}
         </View>
       ) : (
         <FlatList
@@ -331,7 +342,7 @@ export default function CommunityScreen() {
       {/* Modals */}
       <UsernameModal
         visible={showUsername}
-        currentName={profile?.full_name || ""}
+        currentName={profile?.community_display_name || profile?.full_name || ""}
         onSave={async (name) => {
           if (!user) return;
           await supabase.from("profiles")
@@ -339,6 +350,7 @@ export default function CommunityScreen() {
             .eq("id", user.id);
           setShowUsername(false);
         }}
+        onClose={() => setShowUsername(false)}
       />
 
       <NewPostModal
@@ -400,20 +412,29 @@ function EmptyState({ category }: { category: CategoryKey }) {
 }
 
 // ─── Username Modal ────────────────────────────────────────────────────────────
-function UsernameModal({ visible, currentName, onSave }: {
+function UsernameModal({ visible, currentName, onSave, onClose }: {
   visible: boolean;
   currentName: string;
   onSave: (name: string) => void;
+  onClose?: () => void;
 }) {
   const [name, setName] = useState(currentName);
+  const isEditing = !!currentName;
+
+  // Reset to current name every time the modal opens
+  useEffect(() => {
+    if (visible) setName(currentName);
+  }, [visible, currentName]);
 
   return (
     <Modal visible={visible} transparent animationType="fade">
       <View style={styles.overlay}>
         <View style={styles.usernameCard}>
-          <Text style={styles.modalTitle}>Choose Your Display Name</Text>
+          <Text style={styles.modalTitle}>
+            {isEditing ? "Change Display Name" : "Choose Your Display Name"}
+          </Text>
           <Text style={styles.modalSubtitle}>
-            This is how you'll appear in the community. You can change it anytime from your profile.
+            This is how you'll appear in the community.
           </Text>
           <TextInput
             style={styles.input}
@@ -429,11 +450,19 @@ function UsernameModal({ visible, currentName, onSave }: {
             onPress={() => name.trim() && onSave(name.trim())}
             disabled={!name.trim()}
           >
-            <Text style={styles.primaryBtnText}>Set Display Name</Text>
+            <Text style={styles.primaryBtnText}>
+              {isEditing ? "Save Name" : "Set Display Name"}
+            </Text>
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => onSave(currentName || "User")}>
-            <Text style={styles.skipLink}>Use my full name for now</Text>
-          </TouchableOpacity>
+          {isEditing ? (
+            <TouchableOpacity onPress={onClose}>
+              <Text style={styles.skipLink}>Cancel</Text>
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity onPress={() => onSave(currentName || "User")}>
+              <Text style={styles.skipLink}>Use my full name for now</Text>
+            </TouchableOpacity>
+          )}
         </View>
       </View>
     </Modal>
@@ -810,6 +839,9 @@ const styles = StyleSheet.create({
   emptyState:       { alignItems: "center", paddingTop: 60, paddingHorizontal: 32 },
   emptyTitle:       { fontSize: 18, fontWeight: "700", color: Colors.black, marginTop: 16, marginBottom: 8 },
   emptyBody:        { fontSize: 14, color: Colors.gray, textAlign: "center", lineHeight: 20 },
+
+  // Edit-name button (header right slot)
+  editNameBtn:      { width: 36, height: 36, alignItems: "center", justifyContent: "center" },
 
   // FAB
   fab:              { position: "absolute", right: 20, width: 56, height: 56, borderRadius: 28,

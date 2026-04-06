@@ -139,7 +139,24 @@ export default function ChatScreen() {
       {/* Header */}
       <BrandHeader
           left={<BackBtn onPress={() => router.canGoBack() ? router.back() : router.replace("/(tabs)/" as any)} />}
-          right={<View style={s.onlineDot} />}
+          right={
+            <View style={s.headerRight}>
+              {messages.length > 1 && (
+                <TouchableOpacity
+                  style={s.clearBtn}
+                  onPress={() => {
+                    setMessages([WELCOME]);
+                    setShowSuggest(true);
+                    setInput("");
+                  }}
+                  hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                >
+                  <Ionicons name="refresh-outline" size={20} color={Colors.gold} />
+                </TouchableOpacity>
+              )}
+              <View style={s.onlineDot} />
+            </View>
+          }
         />
 
       <KeyboardAvoidingView
@@ -275,6 +292,8 @@ const s = StyleSheet.create({
   headerTitle: { color: Colors.white, fontWeight: "800", fontSize: 15 },
   headerSub:   { color: "#666", fontSize: 10, marginTop: 1 },
   onlineDot:   { width: 8, height: 8, borderRadius: 4, backgroundColor: "#2ECC71" },
+  headerRight: { flexDirection: "row", alignItems: "center", gap: 10 },
+  clearBtn:    { padding: 4 },
 
   messages:        { flex: 1, backgroundColor: Colors.offWhite },
   messagesContent: { padding: 16, paddingBottom: 8 },

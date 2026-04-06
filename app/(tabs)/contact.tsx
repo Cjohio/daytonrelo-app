@@ -1,12 +1,11 @@
 import { ScrollView, View, Text, StyleSheet, TouchableOpacity, Linking, Image } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import LeadCaptureForm from "../../shared/components/LeadCaptureForm";
 import { Colors } from "../../shared/theme/colors";
 import ChatFAB from "../../shared/components/ChatFAB";
 import HeaderActions from "../../shared/components/HeaderActions";
-import BrandHeader, { BackBtn } from "../../shared/components/BrandHeader";
+import BrandHeader from "../../shared/components/BrandHeader";
 
 // ── Paste your YouTube video ID here when ready ───────────────────────────────
 // e.g. for https://www.youtube.com/watch?v=dQw4w9WgXcQ the ID is "dQw4w9WgXcQ"
@@ -28,10 +27,7 @@ export default function ContactScreen() {
   return (
     <SafeAreaView style={styles.safe} edges={["top"]}>
       <ChatFAB extraBottom={64} />
-      <BrandHeader
-          left={<BackBtn onPress={() => router.back()} />}
-          right={<HeaderActions />}
-        />
+      <BrandHeader right={<HeaderActions />} />
 
       <ScrollView style={styles.scroll} contentContainerStyle={styles.content}>
 

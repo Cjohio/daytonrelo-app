@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import {
   View, Text, ScrollView, TouchableOpacity,
-  TextInput, StyleSheet, ActivityIndicator,
+  TextInput, StyleSheet,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
@@ -11,6 +11,7 @@ import { getPersona } from "../../shared/persona";
 import { simplyRetsApi } from "../../api/simplyrets";
 import { Listing } from "../../shared/types/listing";
 import ListingCard from "../../shared/components/ListingCard";
+import { ListingCardSkeleton } from "../../shared/components/SkeletonLoader";
 import ChatFAB from "../../shared/components/ChatFAB";
 import HeaderActions from "../../shared/components/HeaderActions";
 import BrandHeader, { BackBtn } from "../../shared/components/BrandHeader";
@@ -22,7 +23,13 @@ const FILTER_TABS: { label: string; value: ListingMode }[] = [
   { label: "For Rent",  value: "rent" },
 ];
 
-const AREAS = ["All Areas", "Beavercreek", "Kettering", "Centerville", "Fairborn", "Huber Heights"];
+const AREAS = [
+  "All Areas",
+  "Beavercreek", "Fairborn", "Kettering", "Centerville", "Huber Heights",
+  "Oakwood", "Miamisburg", "Springboro", "Xenia", "Trotwood",
+  "Riverside", "Englewood", "Vandalia", "Tipp City", "West Carrollton",
+  "Yellow Springs", "Bellbrook",
+];
 
 export default function ExploreScreen() {
   const params = useLocalSearchParams<{ area?: string; budget?: string }>();
@@ -74,7 +81,7 @@ export default function ExploreScreen() {
       setListings(results);
       setSearched(true);
     } catch (e: any) {
-      setError("Could not load listings. Check your SimplyRETS credentials in .env.");
+      setError("We couldn't load listings right now. Please try again in a moment, or contact Chris if the issue continues.");
       setListings([]);
     } finally {
       setLoading(false);
@@ -160,10 +167,9 @@ export default function ExploreScreen() {
       {/* Results */}
       <ScrollView style={styles.results} contentContainerStyle={styles.resultsContent}>
         {loading && (
-          <View style={styles.centered}>
-            <ActivityIndicator color={Colors.gold} size="large" />
-            <Text style={styles.loadingText}>Fetching listings…</Text>
-          </View>
+          <>
+            {[1, 2, 3].map((i) => <ListingCardSkeleton key={i} />)}
+          </>
         )}
 
         {error && !loading && (
