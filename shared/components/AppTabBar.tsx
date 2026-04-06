@@ -20,6 +20,12 @@ const TABS = [
     route:      "/(tabs)/tools",
   },
   {
+    label:      "Community",
+    icon:       "people-outline"         as const,
+    activeIcon: "people"                as const,
+    route:      "/(tabs)/community",
+  },
+  {
     label:      "Chat",
     icon:       "chatbubble-ellipses-outline" as const,
     activeIcon: "chatbubble-ellipses"   as const,
