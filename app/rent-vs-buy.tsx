@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useRef, useEffect } from "react";
 import {
   View, Text, ScrollView, TouchableOpacity,
   TextInput, StyleSheet,
@@ -10,6 +10,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "../shared/theme/colors";
 import AppTabBar from "../shared/components/AppTabBar";
 import ChatFAB from "../shared/components/ChatFAB";
+import { track } from "../shared/analytics";
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 function fmt(n: number, compact = false): string {
@@ -127,6 +128,20 @@ export default function RentVsBuy() {
       buyWins,
     };
   }, [homePrice, downPct, rateStr, termYears, rentStr, yearsToStay, taxRateStr, hoaStr]);
+
+  // ── Track first result ──────────────────────────────────────────────────
+  const trackedRvB = useRef(false);
+  useEffect(() => {
+    if (R && !trackedRvB.current) {
+      trackedRvB.current = true;
+      track("rent_vs_buy_calculated", {
+        homePrice:   parseFloat(homePrice.replace(/,/g, "")) || 0,
+        yearsToStay,
+        buyWins:     R.buyWins,
+        breakEvenYear: R.breakEvenYear,
+      });
+    }
+  }, [R, homePrice, yearsToStay]);
 
   // ── UI ───────────────────────────────────────────────────────────────────
   return (

@@ -10,6 +10,7 @@ import { supabase } from "../../lib/supabase";
 import { Colors } from "../../shared/theme/colors";
 import { setPersona } from "../../shared/persona";
 import { signInWithGoogle } from "../../shared/auth/useGoogleAuth";
+import { track } from "../../shared/analytics";
 
 const HUB_ROUTE: Record<string, string> = {
   military:   "/military-hub",
@@ -45,6 +46,7 @@ export default function LoginScreen() {
     if (error) {
       Alert.alert("Google sign in failed", error);
     } else {
+      track("login_completed", { method: "google" });
       const userId = data?.user?.id;
       const route = userId ? await getHubRoute(userId) : "/military-hub";
       router.replace(route as any);
@@ -65,6 +67,7 @@ export default function LoginScreen() {
     if (error) {
       Alert.alert("Login failed", error.message);
     } else {
+      track("login_completed", { method: "email" });
       const userId = data?.user?.id;
       const route = userId ? await getHubRoute(userId) : "/military-hub";
       router.replace(route as any);

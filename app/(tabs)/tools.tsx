@@ -63,6 +63,13 @@ const ALL_TOOLS: Record<string, ToolDef> = {
     icon: "shield-checkmark-outline",
     route: "/military",
   },
+  "military-benefits": {
+    id: "military-benefits",
+    title: "Military Home Buying Benefits",
+    subtitle: "Complete guide: VA loans, SCRA, adapted housing grants, BAH buying power, and Ohio-specific benefits including OHFA Heroes and property tax exemptions.",
+    icon: "ribbon-outline",
+    route: "/military-benefits",
+  },
   "first-30-days": {
     id: "first-30-days",
     title: "First 30 Days Checklist",
@@ -249,7 +256,7 @@ const PERSONA_SECTIONS: Record<Persona, SectionDef[]> = {
     {
       title: "Military Finance",
       icon: "calculator-outline",
-      toolIds: ["bah-calculator", "military-va", "dity-calculator", "tle-calculator"],
+      toolIds: ["bah-calculator", "military-benefits", "military-va", "dity-calculator", "tle-calculator"],
     },
     {
       title: "Explore Dayton",

@@ -11,6 +11,7 @@ import { Colors } from "../../shared/theme/colors";
 import type { Persona, MoveTimeline } from "../../shared/auth/AuthContext";
 import { setPersona } from "../../shared/persona";
 import { signInWithGoogle } from "../../shared/auth/useGoogleAuth";
+import { track } from "../../shared/analytics";
 
 // ─── Lead capture options ─────────────────────────────────────────────────────
 const TIMELINES: { label: string; value: MoveTimeline }[] = [
@@ -85,7 +86,10 @@ export default function SignupScreen() {
     const { error } = await signInWithGoogle();
     setGoogleLoading(false);
     if (error) Alert.alert("Google sign in failed", error);
-    else router.replace(HUB_ROUTE[persona] as any);
+    else {
+      track("signup_completed", { method: "google", persona });
+      router.replace(HUB_ROUTE[persona] as any);
+    }
   }
 
   async function handleSignup() {
@@ -158,6 +162,8 @@ export default function SignupScreen() {
 
     // 4. Save persona locally so tools tab is ready immediately
     setPersona(persona);
+
+    track("signup_completed", { method: "email", persona, timeline });
 
     setLoading(false);
     router.replace(HUB_ROUTE[persona] as any);

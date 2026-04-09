@@ -11,6 +11,7 @@ import { Colors } from "../shared/theme/colors";
 import { simplyRetsApi } from "../api/simplyrets";
 import { Listing, formatPrice, formatAddress } from "../shared/types/listing";
 import { useAuth } from "../shared/auth/AuthContext";
+import { track } from "../shared/analytics";
 
 const { width: SCREEN_W } = Dimensions.get("window");
 
@@ -30,7 +31,16 @@ export default function ListingDetailScreen() {
   useEffect(() => {
     if (!mlsId) { setError("No listing ID provided."); setLoading(false); return; }
     simplyRetsApi.getListing(mlsId)
-      .then(setListing)
+      .then((data) => {
+        setListing(data);
+        track("listing_viewed", {
+          mlsId,
+          listPrice: data?.listPrice ?? null,
+          city:      data?.address?.city ?? null,
+          beds:      data?.property?.bedrooms ?? null,
+          baths:     data?.property?.bathsFull ?? null,
+        });
+      })
       .catch(() => setError("Could not load this listing. Check your SimplyRETS credentials."))
       .finally(() => setLoading(false));
   }, [mlsId]);

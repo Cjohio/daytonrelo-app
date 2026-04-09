@@ -56,6 +56,7 @@ const VA_BENEFITS = [
 
 // ─── Quick action links ───────────────────────────────────────────────────────
 const QUICK_LINKS = [
+  { icon: "ribbon-outline",           label: "Military Home Buying Benefits", route: "/military-benefits" },
   { icon: "checkbox-outline",        label: "PCS Timeline Tracker",        route: "/pcs-timeline" },
   { icon: "shield-outline",          label: "On-Base vs Off-Base Guide",   route: "/on-base-vs-off" },
   { icon: "airplane-outline",        label: "WPAFB Base Guide",            route: "/wpafb" },

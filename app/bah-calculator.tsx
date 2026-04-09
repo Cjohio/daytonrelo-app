@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { ScrollView, View, Text, TouchableOpacity, StyleSheet, Share } from "react-native";
 import { router } from "expo-router";
+import { track } from "../shared/analytics";
 import BrandHeader, { BackBtn } from "../shared/components/BrandHeader";
 import { Colors } from "../shared/theme/colors";
 import AppTabBar from "../shared/components/AppTabBar";
@@ -54,6 +55,7 @@ export default function BAHCalculatorScreen() {
     const rates = BAH_RATES[grade];
     const bah   = hasDep ? rates.withDep : rates.withoutDep;
     setResult({ bah, maxHome: estimateMaxHome(bah) });
+    track("bah_calculated", { rank: grade, hasDependents: hasDep });
   };
 
   const reset = () => { setGrade(null); setHasDep(null); setResult(null); };

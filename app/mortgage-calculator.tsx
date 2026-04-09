@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { router } from "expo-router";
+import { track } from "../shared/analytics";
 import BrandHeader, { BackBtn } from "../shared/components/BrandHeader";
 import {
   View, Text, TextInput, TouchableOpacity,
@@ -149,6 +150,13 @@ function AffordTab() {
   const dtiHousing = grossMonthly > 0 ? (totalMo / grossMonthly) * 100 : 0;
 
   const hasResult = maxHome > 0;
+  const trackedAfford = useRef(false);
+  useEffect(() => {
+    if (hasResult && !trackedAfford.current) {
+      trackedAfford.current = true;
+      track("mortgage_calculated", { tab: "afford", maxHome: Math.round(maxHome), termYears: term, rate: rateVal });
+    }
+  }, [hasResult, maxHome, term, rateVal]);
 
   return (
     <KeyboardAvoidingView
@@ -298,6 +306,13 @@ function PaymentTab() {
   const totalInterest = totalPaid - loan;
 
   const hasResult = priceVal > 0 && loan > 0 && rateVal > 0;
+  const trackedPayment = useRef(false);
+  useEffect(() => {
+    if (hasResult && !trackedPayment.current) {
+      trackedPayment.current = true;
+      track("mortgage_calculated", { tab: "payment", homePrice: Math.round(priceVal), downPayment: Math.round(down), termYears: term, rate: rateVal });
+    }
+  }, [hasResult, priceVal, down, term, rateVal]);
 
   return (
     <KeyboardAvoidingView
