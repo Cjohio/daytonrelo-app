@@ -7,7 +7,6 @@ import { Colors } from "../../shared/theme/colors";
 import { setPersona, loadPersonaAsync, clearPersona, type Persona } from "../../shared/persona";
 import ChatFAB from "../../shared/components/ChatFAB";
 import HeaderActions from "../../shared/components/HeaderActions";
-import MortgageRates from "../../shared/components/MortgageRates";
 import { useAnalytics } from "../../shared/analytics";
 
 // ─── About Me — update these when ready ──────────────────────────────────────
@@ -118,11 +117,6 @@ export default function LandingScreen() {
           ))}
         </View>
         <Text style={s.colNote}>Cost of Living Index: US avg = 100</Text>
-
-        {/* ── Mortgage Rates ─────────────────────────────────────────────── */}
-        <View style={{ marginTop: 20 }}>
-          <MortgageRates />
-        </View>
 
         {/* ── Path selector ──────────────────────────────────────────────── */}
         <View style={s.section}>
