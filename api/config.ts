@@ -44,4 +44,15 @@ export const API_CONFIG = {
     // Powers the live mortgage rate widget. Falls back to estimates if blank.
     apiKey: process.env.EXPO_PUBLIC_FRED_API_KEY ?? "",
   },
+
+  trestle: {
+    // CoreLogic Trestle — RESO Web API (MLS feed via DABR membership)
+    // Get credentials from DABR: https://www.dabr.com
+    // OAuth2 client credentials — replace placeholders with real values
+    clientId:     process.env.EXPO_PUBLIC_TRESTLE_CLIENT_ID     ?? "",
+    clientSecret: process.env.EXPO_PUBLIC_TRESTLE_CLIENT_SECRET ?? "",
+    baseURL:      process.env.EXPO_PUBLIC_TRESTLE_BASE_URL       ?? "https://api.trestle.io",
+    tokenURL:     process.env.EXPO_PUBLIC_TRESTLE_TOKEN_URL      ?? "https://api.trestle.io/oauth/token",
+    defaultCities: ["Dayton", "Beavercreek", "Fairborn", "Kettering", "Centerville", "Miamisburg", "Springboro", "Oakwood"],
+  },
 } as const;

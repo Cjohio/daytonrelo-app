@@ -1,13 +1,31 @@
 import { useState } from "react";
 import BrandHeader, { BackBtn } from "../../shared/components/BrandHeader";
 import {
-  View, Text, ScrollView, TouchableOpacity, StyleSheet, Linking,
+  View, Text, ScrollView, TouchableOpacity, StyleSheet, Linking, Image,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "../../shared/theme/colors";
 import ChatFAB from "../../shared/components/ChatFAB";
 import HeaderActions from "../../shared/components/HeaderActions";
+
+// ─── Restaurant logo registry ──────────────────────────────────────────────────
+// React Native requires static require() paths, so we build a map by id.
+// Restaurants not in this map fall back to a gold-bordered letter badge.
+const RESTAURANT_LOGOS: Record<string, any> = {
+  "amber-rose":    require("../../assets/images/restaurants/amber-rose.png"),
+  "flying-pizza":  require("../../assets/images/restaurants/flying-pizza.png"),
+  "grist":         require("../../assets/images/restaurants/grist.png"),
+  "jays-seafood":  require("../../assets/images/restaurants/jays-seafood.png"),
+  "lilys":         require("../../assets/images/restaurants/lilys.png"),
+  "luckys":        require("../../assets/images/restaurants/luckys.png"),
+  "manna":         require("../../assets/images/restaurants/manna.png"),
+  "meefs":         require("../../assets/images/restaurants/meefs.png"),
+  "pine-club":     require("../../assets/images/restaurants/pine-club.png"),
+  "slyders":       require("../../assets/images/restaurants/slyders.png"),
+  "thai-9":        require("../../assets/images/restaurants/thai-9.png"),
+  "wheat-penny":   require("../../assets/images/restaurants/wheat-penny.png"),
+};
 
 // ─── Types ─────────────────────────────────────────────────────────────────────
 interface Restaurant {
@@ -248,10 +266,30 @@ function PriceBadge({ price }: { price: Restaurant["price"] }) {
   );
 }
 
+// ─── Logo (with gold letter-badge fallback) ────────────────────────────────────
+function RestaurantLogo({ id, name }: { id: string; name: string }) {
+  const source = RESTAURANT_LOGOS[id];
+  if (source) {
+    return (
+      <View style={s.logoWrap}>
+        <Image source={source} style={s.logoImg} resizeMode="contain" />
+      </View>
+    );
+  }
+  return (
+    <View style={[s.logoWrap, s.logoBadge]}>
+      <Text style={s.logoBadgeText}>{name.charAt(0)}</Text>
+    </View>
+  );
+}
+
 // ─── Restaurant card ───────────────────────────────────────────────────────────
 function RestaurantCard({ r }: { r: Restaurant }) {
   return (
     <View style={s.card}>
+      {/* Logo header */}
+      <RestaurantLogo id={r.id} name={r.name} />
+
       {/* Top row */}
       <View style={s.cardTop}>
         <View style={s.cardMeta}>
@@ -420,6 +458,24 @@ const s = StyleSheet.create({
     borderWidth: 1, borderColor: Colors.border,
     shadowColor: "#000", shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05, shadowRadius: 6, elevation: 2,
+  },
+
+  logoWrap: {
+    width: 64, height: 64, borderRadius: 12,
+    backgroundColor: "#FAFAFA",
+    borderWidth: 1, borderColor: Colors.border,
+    alignItems: "center", justifyContent: "center",
+    marginBottom: 10, alignSelf: "flex-start",
+    overflow: "hidden",
+  },
+  logoImg: { width: "100%", height: "100%" },
+  logoBadge: {
+    backgroundColor: Colors.black,
+    borderColor: Colors.gold, borderWidth: 2,
+  },
+  logoBadgeText: {
+    fontSize: 28, fontWeight: "800",
+    color: Colors.gold, letterSpacing: 0.5,
   },
 
   cardTop: {
