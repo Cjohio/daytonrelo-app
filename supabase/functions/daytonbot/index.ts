@@ -1,7 +1,7 @@
 // ─────────────────────────────────────────────
 //  daytonbot — Supabase Edge Function
 //  Proxies DaytonBot chat through Claude claude-haiku-4-5 with per-IP rate limiting.
-//  Claude API key lives in Supabase Vault — never in the app bundle.
+//  Logs each chat message to user_events for the Mission Control dashboard.
 //
 //  Secrets required (set in Supabase Dashboard → Edge Functions → Secrets):
 //    CLAUDE_API_KEY   — from console.anthropic.com
@@ -93,6 +93,19 @@ IMPORTANT:
 - If you don't know something, say so and offer to have Chris follow up
 - Never claim to be human if asked directly`;
 
+/** Extract user_id from the verified JWT Authorization header */
+function getUserIdFromJwt(req: Request): string | null {
+  try {
+    const auth  = req.headers.get("authorization") ?? "";
+    const token = auth.replace(/^Bearer\s+/i, "");
+    if (!token) return null;
+    const payload = JSON.parse(atob(token.split(".")[1]));
+    return payload.sub ?? null;
+  } catch {
+    return null;
+  }
+}
+
 Deno.serve(async (req: Request) => {
   // Handle CORS preflight
   if (req.method === "OPTIONS") {
@@ -100,13 +113,13 @@ Deno.serve(async (req: Request) => {
   }
 
   try {
-    // ── Rate limiting by client IP ────────────────────────────────────────────
-    const clientIP =
-      req.headers.get("x-forwarded-for")?.split(",")[0].trim() ?? "unknown";
-
     const supabaseUrl    = Deno.env.get("SUPABASE_URL")!;
     const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const db = createClient(supabaseUrl, serviceRoleKey);
+
+    // ── Rate limiting by client IP ────────────────────────────────────────────
+    const clientIP =
+      req.headers.get("x-forwarded-for")?.split(",")[0].trim() ?? "unknown";
 
     const oneHourAgo = new Date(Date.now() - 3_600_000).toISOString();
     const { count } = await db
@@ -118,17 +131,14 @@ Deno.serve(async (req: Request) => {
     if ((count ?? 0) >= RATE_LIMIT_PER_HOUR) {
       return new Response(
         JSON.stringify({ error: "Rate limit exceeded — try again in an hour." }),
-        {
-          status: 429,
-          headers: { ...CORS_HEADERS, "Content-Type": "application/json" },
-        }
+        { status: 429, headers: { ...CORS_HEADERS, "Content-Type": "application/json" } }
       );
     }
 
-    // Log this request (fire-and-forget)
+    // Log rate limit entry (fire-and-forget)
     db.from("chat_rate_limits").insert({ client_ip: clientIP });
 
-    // ── Parse request body ────────────────────────────────────────────────────
+    // ── Parse body ────────────────────────────────────────────────────────────
     const { messages } = await req.json() as {
       messages: { role: "user" | "assistant"; content: string }[];
     };
@@ -140,9 +150,22 @@ Deno.serve(async (req: Request) => {
       );
     }
 
+    // ── Log to user_events for Mission Control dashboard (fire-and-forget) ───
+    const userId = getUserIdFromJwt(req);
+    const lastUserMsg = [...messages].reverse().find(m => m.role === "user");
+    if (userId && lastUserMsg) {
+      db.from("user_events").insert({
+        user_id:    userId,
+        event_type: "chat_message",
+        properties: {
+          message_count: messages.length,
+          preview:       lastUserMsg.content.slice(0, 120),
+        },
+      });
+    }
+
     // ── Claude API call ───────────────────────────────────────────────────────
     const apiKey = Deno.env.get("CLAUDE_API_KEY") ?? "";
-
     if (!apiKey) {
       return new Response(
         JSON.stringify({
