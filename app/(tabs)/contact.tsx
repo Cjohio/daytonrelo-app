@@ -1,11 +1,14 @@
+import { useState } from "react";
 import { ScrollView, View, Text, StyleSheet, TouchableOpacity, Linking, Image } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
+import { router } from "expo-router";
 import LeadCaptureForm from "../../shared/components/LeadCaptureForm";
 import { Colors } from "../../shared/theme/colors";
 import ChatFAB from "../../shared/components/ChatFAB";
 import HeaderActions from "../../shared/components/HeaderActions";
 import BrandHeader from "../../shared/components/BrandHeader";
+import { LENDERS } from "../lender";
 
 // ── Paste your YouTube video ID here when ready ───────────────────────────────
 // e.g. for https://www.youtube.com/watch?v=dQw4w9WgXcQ the ID is "dQw4w9WgXcQ"
@@ -24,6 +27,10 @@ const BIO_HIGHLIGHTS = [
 ];
 
 export default function ContactScreen() {
+  const [shuffledLenders] = useState(() =>
+    [...LENDERS].sort(() => Math.random() - 0.5)
+  );
+
   return (
     <SafeAreaView style={styles.safe} edges={["top"]}>
       <ChatFAB extraBottom={64} />
@@ -169,6 +176,68 @@ export default function ContactScreen() {
 
         {/* ── Lead capture form ─────────────────────────────────── */}
         <LeadCaptureForm />
+
+        {/* ── Preferred Lenders ─────────────────────────────────── */}
+        <View style={styles.lendersSection}>
+          <View style={styles.lendersTitleRow}>
+            <View style={styles.lendersTitleBar} />
+            <Text style={styles.lendersTitle}>Preferred Lenders</Text>
+          </View>
+          <Text style={styles.lendersSub}>
+            Chris-vetted lenders specializing in VA loans and Dayton-area buyers.
+          </Text>
+
+          {shuffledLenders.map((lender) => (
+            <View key={lender.id} style={styles.lenderCard}>
+              {/* Photo + name */}
+              <View style={styles.lenderCardTop}>
+                {lender.photo ? (
+                  <Image source={{ uri: lender.photo }} style={styles.lenderPhoto} />
+                ) : (
+                  <View style={styles.lenderPhotoPlaceholder}>
+                    <Ionicons name="person" size={22} color={Colors.gold} />
+                  </View>
+                )}
+                <View style={styles.lenderCardInfo}>
+                  <Text style={styles.lenderName}>{lender.name}</Text>
+                  <Text style={styles.lenderTitle}>{lender.title}</Text>
+                  <Text style={styles.lenderCompany}>{lender.company}</Text>
+                </View>
+              </View>
+
+              {/* Short bio */}
+              <Text style={styles.lenderBio} numberOfLines={2}>{lender.shortBio}</Text>
+
+              {/* Buttons */}
+              <View style={styles.lenderBtnRow}>
+                <TouchableOpacity
+                  style={styles.lenderProfileBtn}
+                  onPress={() => router.push({ pathname: "/lender-detail" as any, params: { id: lender.id } })}
+                  activeOpacity={0.85}
+                >
+                  <Text style={styles.lenderProfileBtnText}>View Profile</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.lenderWebsiteBtn}
+                  onPress={() => Linking.openURL(lender.website)}
+                  activeOpacity={0.85}
+                >
+                  <Ionicons name="globe-outline" size={13} color={Colors.gold} />
+                  <Text style={styles.lenderWebsiteBtnText}>Website</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          ))}
+
+          <TouchableOpacity
+            style={styles.seeAllLendersBtn}
+            onPress={() => router.push("/lender" as any)}
+            activeOpacity={0.85}
+          >
+            <Text style={styles.seeAllLendersBtnText}>See All Lenders</Text>
+            <Ionicons name="arrow-forward" size={14} color={Colors.gold} />
+          </TouchableOpacity>
+        </View>
 
         <View style={{ height: 40 }} />
       </ScrollView>
@@ -458,4 +527,82 @@ const styles = StyleSheet.create({
   divider: { flexDirection: "row", alignItems: "center", gap: 10, marginBottom: 24 },
   dividerLine: { flex: 1, height: 1, backgroundColor: Colors.border },
   dividerText: { color: Colors.gray, fontSize: 12 },
+
+  // ── Preferred Lenders ─────────────────────────────────────────
+  lendersSection: { marginTop: 28 },
+  lendersTitleRow: {
+    flexDirection: "row", alignItems: "center",
+    gap: 10, marginBottom: 6,
+  },
+  lendersTitleBar: {
+    width: 4, height: 20, borderRadius: 2,
+    backgroundColor: Colors.gold,
+  },
+  lendersTitle: {
+    color: Colors.black, fontSize: 16, fontWeight: "800", letterSpacing: 0.3,
+  },
+  lendersSub: {
+    color: Colors.gray, fontSize: 13, lineHeight: 19,
+    marginBottom: 16,
+  },
+  lenderCard: {
+    backgroundColor: Colors.white,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    padding: 16,
+    marginBottom: 12,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.04,
+    shadowRadius: 4,
+    elevation: 1,
+  },
+  lenderCardTop: {
+    flexDirection: "row", alignItems: "center",
+    gap: 12, marginBottom: 10,
+  },
+  lenderPhoto: {
+    width: 52, height: 52, borderRadius: 26,
+    borderWidth: 2, borderColor: Colors.goldDark,
+  },
+  lenderPhotoPlaceholder: {
+    width: 52, height: 52, borderRadius: 26,
+    backgroundColor: "#1A1A1A",
+    borderWidth: 2, borderColor: Colors.goldDark,
+    alignItems: "center", justifyContent: "center",
+    flexShrink: 0,
+  },
+  lenderCardInfo: { flex: 1 },
+  lenderName:    { color: Colors.black, fontWeight: "800", fontSize: 15, marginBottom: 1 },
+  lenderTitle:   { color: Colors.gray,  fontSize: 12 },
+  lenderCompany: { color: Colors.gray,  fontSize: 12, fontWeight: "600" },
+  lenderBio: {
+    color: Colors.gray, fontSize: 13, lineHeight: 18,
+    marginBottom: 12,
+  },
+  lenderBtnRow: {
+    flexDirection: "row", gap: 8,
+  },
+  lenderProfileBtn: {
+    flex: 1, alignItems: "center", justifyContent: "center",
+    backgroundColor: Colors.gold,
+    paddingVertical: 9, borderRadius: 8,
+  },
+  lenderProfileBtnText: { color: Colors.black, fontWeight: "800", fontSize: 13 },
+  lenderWebsiteBtn: {
+    flex: 1, flexDirection: "row", alignItems: "center",
+    justifyContent: "center", gap: 5,
+    borderWidth: 1.5, borderColor: Colors.gold,
+    paddingVertical: 9, borderRadius: 8,
+  },
+  lenderWebsiteBtnText: { color: Colors.gold, fontWeight: "700", fontSize: 13 },
+  seeAllLendersBtn: {
+    flexDirection: "row", alignItems: "center",
+    justifyContent: "center", gap: 6,
+    paddingVertical: 12,
+  },
+  seeAllLendersBtnText: {
+    color: Colors.gold, fontWeight: "700", fontSize: 14,
+  },
 });
