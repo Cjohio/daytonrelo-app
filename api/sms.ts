@@ -1,69 +1,34 @@
 // ─────────────────────────────────────────────
-//  SMS Notifications via Twilio
-//  Sends a text to the agent on every lead.
-//  Docs: https://www.twilio.com/docs/sms
+//  SMS Notifications — via Supabase Edge Function
+//  Twilio credentials now live in Supabase Vault (server-side only).
+//  This file no longer touches Twilio directly — no secrets in the bundle.
 // ─────────────────────────────────────────────
 
-import { API_CONFIG } from "./config";
-
-const { twilioAccountSid, twilioAuthToken, twilioFromNumber, agentPhone } =
-  API_CONFIG.sms;
+import { supabase } from "../lib/supabase";
+import { LeadFormData } from "../shared/types/lead";
 
 /**
- * Send an SMS to the agent's phone number.
- * Falls back to console.warn if Twilio is not configured.
+ * Notify the agent about a new lead via SMS.
+ * Delegates to the `notify-lead` Supabase Edge Function which holds
+ * Twilio credentials securely in Supabase Vault.
  */
-export async function sendAgentSMS(message: string): Promise<void> {
-  if (!twilioAccountSid || !twilioAuthToken || !agentPhone) {
-    console.warn("[SMS] Twilio not configured — skipping SMS notification.");
-    console.info("[SMS] Would have sent:", message);
-    return;
-  }
-
-  const url = `https://api.twilio.com/2010-04-01/Accounts/${twilioAccountSid}/Messages.json`;
-  const credentials = btoa(`${twilioAccountSid}:${twilioAuthToken}`);
-
-  const body = new URLSearchParams({
-    To:   agentPhone,
-    From: twilioFromNumber,
-    Body: message,
-  });
-
-  const res = await fetch(url, {
-    method: "POST",
-    headers: {
-      Authorization:  `Basic ${credentials}`,
-      "Content-Type": "application/x-www-form-urlencoded",
+export async function sendAgentSMS(data: LeadFormData): Promise<void> {
+  const { error } = await supabase.functions.invoke("notify-lead", {
+    body: {
+      name:         data.name,
+      email:        data.email,
+      phone:        data.phone,
+      employer:     data.employer || undefined,
+      moveTimeline: data.moveTimeline,
+      message:      data.message  || undefined,
     },
-    body: body.toString(),
   });
 
-  if (!res.ok) {
-    const errText = await res.text();
-    throw new Error(`[SMS] Twilio send failed (${res.status}): ${errText}`);
+  if (error) {
+    // Non-fatal — log so it can be traced, but don't crash the lead flow
+    console.error("[SMS] Edge Function call failed:", error);
+    throw new Error(`[SMS] notify-lead failed: ${error.message}`);
   }
 
-  console.info("[SMS] Agent notification sent successfully.");
-}
-
-/** Format a lead into a readable SMS message */
-export function formatLeadSMS(data: {
-  name: string;
-  email: string;
-  phone: string;
-  employer: string;
-  moveTimeline: string;
-  message?: string;
-}): string {
-  const lines = [
-    `🏠 New Dayton Relo Lead`,
-    `──────────────────`,
-    `Name:      ${data.name}`,
-    `Email:     ${data.email}`,
-    `Phone:     ${data.phone}`,
-    `Employer:  ${data.employer || "Not specified"}`,
-    `Timeline:  ${data.moveTimeline}`,
-  ];
-  if (data.message) lines.push(`Note: ${data.message}`);
-  return lines.join("\n");
+  console.info("[SMS] Agent notification dispatched via Edge Function.");
 }

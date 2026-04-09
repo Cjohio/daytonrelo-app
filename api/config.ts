@@ -4,10 +4,10 @@
 // ─────────────────────────────────────────────
 
 export const API_CONFIG = {
-  claude: {
-    // Get your key at https://console.anthropic.com
-    apiKey: process.env.EXPO_PUBLIC_CLAUDE_API_KEY ?? "",
-  },
+  // NOTE: Claude API key and Twilio credentials have been moved to Supabase Vault.
+  // They are no longer needed here — the app calls Edge Functions instead.
+  // See: supabase/functions/daytonbot/index.ts
+  //      supabase/functions/notify-lead/index.ts
 
   simplyRETS: {
     baseURL:   "https://api.simplyrets.com",
@@ -23,15 +23,6 @@ export const API_CONFIG = {
     // Zapier-compatible POST endpoint — paste your webhook URL in .env
     webhookURL: process.env.EXPO_PUBLIC_CRM_WEBHOOK_URL ?? "",
     appVersion: "1.0.0",
-  },
-
-  sms: {
-    // Twilio credentials — https://console.twilio.com
-    twilioAccountSid:  process.env.EXPO_PUBLIC_TWILIO_ACCOUNT_SID  ?? "",
-    twilioAuthToken:   process.env.EXPO_PUBLIC_TWILIO_AUTH_TOKEN    ?? "",
-    twilioFromNumber:  process.env.EXPO_PUBLIC_TWILIO_FROM_NUMBER   ?? "",
-    // Agent's phone receives SMS for every lead submission
-    agentPhone:        process.env.EXPO_PUBLIC_AGENT_PHONE          ?? "",
   },
 
   chat: {

@@ -8,7 +8,7 @@
 // ─────────────────────────────────────────────
 
 import { API_CONFIG } from "./config";
-import { sendAgentSMS, formatLeadSMS } from "./sms";
+import { sendAgentSMS } from "./sms";
 import { supabase } from "../lib/supabase";
 import {
   LeadFormData,
@@ -50,7 +50,7 @@ export async function submitLead(
   // ── 2 & 3. Fire CRM webhook + SMS notification in parallel
   const results = await Promise.allSettled([
     postToCRM(payload),
-    sendAgentSMS(formatLeadSMS(data)),
+    sendAgentSMS(data),
   ]);
 
   const crmResult = results[0];
