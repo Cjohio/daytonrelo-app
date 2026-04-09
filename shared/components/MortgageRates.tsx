@@ -16,6 +16,7 @@ import {
   Animated, Easing,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { router } from "expo-router";
 import { API_CONFIG } from "../../api/config";
 import { Colors } from "../theme/colors";
 
@@ -370,7 +371,11 @@ export default function MortgageRates() {
   }, []);
 
   return (
-    <View style={s.card}>
+    <TouchableOpacity
+      style={s.card}
+      onPress={() => router.push("/lender" as any)}
+      activeOpacity={0.88}
+    >
       {/* Header row */}
       <View style={s.header}>
         <View style={s.headerLeft}>
@@ -406,7 +411,14 @@ export default function MortgageRates() {
       ) : (
         <TickerContent rates={rates} />
       )}
-    </View>
+
+      {/* Lender nudge */}
+      <View style={s.lenderFooter}>
+        <Ionicons name="business-outline" size={12} color={Colors.goldDark} />
+        <Text style={s.lenderFooterText}>Meet our preferred lenders</Text>
+        <Ionicons name="chevron-forward" size={12} color={Colors.goldDark} style={{ marginLeft: "auto" }} />
+      </View>
+    </TouchableOpacity>
   );
 }
 
@@ -466,5 +478,20 @@ const s = StyleSheet.create({
     height: 14,
     borderRadius: 6,
     backgroundColor: "#1E1E1E",
+  },
+  lenderFooter: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderTopWidth: 1,
+    borderTopColor: "#1E1E1E",
+  },
+  lenderFooterText: {
+    color: Colors.goldDark,
+    fontSize: 11,
+    fontWeight: "600",
+    letterSpacing: 0.2,
   },
 });
