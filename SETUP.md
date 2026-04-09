@@ -1,113 +1,133 @@
 # Dayton Relo App — Setup Guide
 
-## 1. Move the project to its final location
+> **Platform:** macOS (M-series or Intel)
+> **Project path:** `~/Documents/Claude/Claude/Projects/Set up open clay discord/dayton-relo-app`
+> **Last verified:** April 9, 2026
 
-Open **PowerShell** and run:
+---
 
-```powershell
-# Move from the workspace folder to C:\Users\wolfb\dayton-relo-app
-Move-Item "C:\Users\wolfb\Set up open clay discord\dayton-relo-app" "C:\Users\wolfb\dayton-relo-app"
-cd C:\Users\wolfb\dayton-relo-app
+## 1. Prerequisites
+
+Make sure these are installed (see `MAC-SETUP.md` for full install instructions):
+
+```bash
+node --version    # 22+ required
+npm --version     # 10+ required
+git --version     # any recent version
+eas --version     # Expo Application Services CLI
 ```
 
 ---
 
 ## 2. Install dependencies
 
-```powershell
+```bash
+cd ~/Documents/Claude/Claude/Projects/Set\ up\ open\ clay\ discord/dayton-relo-app
 npm install
 ```
 
 ---
 
-## 3. Configure environment variables
+## 3. Verify your .env file
 
-```powershell
-Copy-Item .env.example .env
-notepad .env
+Your `.env` should already exist in the project. Check:
+
+```bash
+ls -la .env
 ```
 
-Fill in:
-| Variable | Where to get it |
-|---|---|
-| `EXPO_PUBLIC_SIMPLYRETS_USER` | [simplyrets.com/accounts](https://simplyrets.com/accounts) |
-| `EXPO_PUBLIC_SIMPLYRETS_PASSWORD` | Same as above |
-| `EXPO_PUBLIC_CRM_WEBHOOK_URL` | Your Zapier webhook URL |
-| `EXPO_PUBLIC_TWILIO_ACCOUNT_SID` | [console.twilio.com](https://console.twilio.com) |
-| `EXPO_PUBLIC_TWILIO_AUTH_TOKEN` | Same as above |
-| `EXPO_PUBLIC_TWILIO_FROM_NUMBER` | Your Twilio number |
-| `EXPO_PUBLIC_AGENT_PHONE` | Your cell number (receives lead SMS) |
+If it's missing, copy from the example:
 
-> **Note:** The app works without any of these set. SimplyRETS sandbox data loads by default.
+```bash
+cp .env.example .env
+```
+
+Open and fill in any remaining placeholders:
+
+```bash
+open -e .env
+```
+
+Key variables to fill in before launch:
+
+| Variable | Where to get it | Status |
+|---|---|---|
+| `EXPO_PUBLIC_POSTHOG_API_KEY` | https://posthog.com → Project Settings | ⚠️ Placeholder |
+| `EXPO_PUBLIC_CRM_WEBHOOK_URL` | Your Zapier webhook | ⚠️ Placeholder |
+| `EXPO_PUBLIC_TRESTLE_CLIENT_ID` | DABR (request from your board) | ⚠️ Pending |
+| `EXPO_PUBLIC_TRESTLE_CLIENT_SECRET` | DABR | ⚠️ Pending |
+| `EXPO_PUBLIC_SUPABASE_URL` | Already set | ✅ |
+| `EXPO_PUBLIC_SUPABASE_ANON_KEY` | Already set | ✅ |
+| `EXPO_PUBLIC_CLAUDE_API_KEY` | Already set | ✅ |
+| `EXPO_PUBLIC_TWILIO_*` | Already set | ✅ |
+| `EXPO_PUBLIC_FRED_API_KEY` | Already set | ✅ |
+
+> **Note:** The app runs without any placeholders filled in — SimplyRETS sandbox data loads automatically for listings. PostHog and Zapier will silently no-op.
 
 ---
 
-## 4. Start the app
+## 4. Start the development server
 
-```powershell
-# Start on all platforms
-npm start
+```bash
+# Standard start
+npx expo start
 
-# Or target a specific platform
-npm run android
-npm run ios
-npm run web
+# With cache cleared (recommended after dependency changes)
+npx expo start --clear
+
+# Via tunnel (share with anyone off your network)
+npx expo start --tunnel
 ```
 
-Scan the QR code with the **Expo Go** app on your phone.
+Scan the QR code with the **Expo Go** app on your phone to preview.
 
 ---
 
-## 5. Initialize git (run once)
+## 5. EAS Build (for App Store / Play Store)
 
-```powershell
-git init
-git add .
-git commit -m "feat: initial Dayton Relo project scaffold"
+```bash
+# Make sure you're logged in
+eas whoami   # should show: wolfbot
 
-git add app/_layout.tsx "app/(tabs)/_layout.tsx" "app/(tabs)/index.tsx"
-git commit -m "feat: root layout + tab navigator with luxury black/gold design"
+# iOS production build
+eas build --platform ios --profile production
 
-git add "app/(tabs)/explore.tsx" "app/(tabs)/tools.tsx" "app/(tabs)/contact.tsx"
-git commit -m "feat: explore (IDX), tools, and contact tab screens"
+# Android production build
+eas build --platform android --profile production
 
-git add app/military.tsx app/bah-calculator.tsx app/neighborhood-quiz.tsx app/employer-map.tsx
-git commit -m "feat: military VA guide, BAH calculator, neighborhood quiz, employer map"
-
-git add shared/ api/
-git commit -m "feat: shared components, theme, types, and API layer (SimplyRETS, leads, SMS)"
-
-git add content/
-git commit -m "content: neighborhoods and employers data for Dayton metro"
+# Submit after builds complete
+eas submit --platform ios --profile production
+eas submit --platform android --profile production
 ```
+
+See `APP_STORE_LAUNCH_CHECKLIST.md` for the full pre-launch checklist.
 
 ---
 
-## 6. Connect Live Chat (optional)
+## 6. Git workflow
 
-### Intercom
-```powershell
-npm install @intercom/intercom-react-native
-```
-Add your App ID to `.env`:
-```
-EXPO_PUBLIC_INTERCOM_APP_ID=your_app_id
-```
-Then uncomment the Intercom lines in `shared/components/ChatWidget.tsx`.
+```bash
+# Always check status BEFORE staging (prevent accidental deletions)
+git status --short
 
-### Tidio
-```powershell
-npm install @tidio/tidio-react-native
+# Stage specific files only — never use git add -A
+git add path/to/file.tsx
+git commit -m "your message"
+git push origin main
 ```
-Add your key to `.env` and uncomment the Tidio lines in `ChatWidget.tsx`.
+
+⚠️ **Important:** Always run `git status --short` before any `git add`. If you see `D ` lines (staged deletions) you didn't intend, run `git reset HEAD` first.
 
 ---
 
-## 7. Wire in live IDX listings
+## 7. Switch listings to Trestle MLS (once DABR credentials arrive)
 
-Once your SimplyRETS production credentials are in `.env`, replace the
-placeholder in `app/(tabs)/index.tsx` with a call to `simplyRetsApi.getFeatured()`.
-The full API client is ready in `api/simplyrets.ts`.
+1. Open `.env`, fill in `EXPO_PUBLIC_TRESTLE_CLIENT_ID` and `EXPO_PUBLIC_TRESTLE_CLIENT_SECRET`
+2. In these three files, replace `simplyRetsApi` with `trestleApi` and adjust the import:
+   - `app/(tabs)/explore.tsx`
+   - `app/listing.tsx`
+   - `app/open-houses.tsx`
+3. The `api/trestle.ts` client and `api/config.ts` trestle block are already built and wired.
 
 ---
 
@@ -116,48 +136,104 @@ The full API client is ready in `api/simplyrets.ts`.
 ```
 dayton-relo-app/
 ├── app/
-│   ├── _layout.tsx           Root stack + status bar
+│   ├── _layout.tsx              Root stack, AuthGate, PostHog screen tracker
 │   ├── (tabs)/
-│   │   ├── _layout.tsx       Tab bar (Home, Explore, Tools, Contact)
-│   │   ├── index.tsx         Home screen
-│   │   ├── explore.tsx       IDX listing search
-│   │   ├── tools.tsx         Tool directory
-│   │   └── contact.tsx       Lead capture + agent card
-│   ├── military.tsx          Military & VA guide
-│   ├── bah-calculator.tsx    BAH calculator (WPAFB rates baked in)
-│   ├── neighborhood-quiz.tsx 5-question neighborhood matcher
-│   └── employer-map.tsx      Employer directory + commute info
+│   │   ├── _layout.tsx          5-tab bar: Search, Tools, Community, Chat, Contact
+│   │   ├── index.tsx            Hub redirector (routes to persona hub)
+│   │   ├── explore.tsx          MLS listing search
+│   │   ├── tools.tsx            Persona-aware tool directory
+│   │   ├── community.tsx        Real-time community board (Supabase)
+│   │   ├── chat.tsx             DaytonBot AI chat
+│   │   ├── contact.tsx          Chris's card + call/text/YouTube
+│   │   ├── eats.tsx             Dayton restaurants (hidden tab)
+│   │   └── profile.tsx          User profile (hidden tab)
+│   ├── auth/
+│   │   ├── signup.tsx           Persona selection + account creation
+│   │   ├── login.tsx            Email + password sign-in
+│   │   ├── forgot.tsx           Password reset
+│   │   └── callback.tsx         OAuth callback handler
+│   ├── military-hub.tsx         Military persona home
+│   ├── relocation.tsx           Relocation persona home
+│   ├── discover.tsx             Discover persona home
+│   ├── bah-calculator.tsx
+│   ├── dity-calculator.tsx
+│   ├── tle-calculator.tsx
+│   ├── mortgage-calculator.tsx
+│   ├── cost-of-living.tsx
+│   ├── rent-vs-buy.tsx
+│   ├── closing-costs.tsx
+│   ├── neighborhood-compare.tsx
+│   ├── neighborhood-quiz.tsx
+│   ├── neighborhoods.tsx
+│   ├── neighborhood/[id].tsx
+│   ├── employer-map.tsx
+│   ├── commute-finder.tsx
+│   ├── schools.tsx
+│   ├── wpafb.tsx
+│   ├── military.tsx
+│   ├── pcs-timeline.tsx
+│   ├── on-base-vs-off.tsx
+│   ├── relo-package.tsx
+│   ├── temp-housing.tsx
+│   ├── va-lender.tsx
+│   ├── lender.tsx
+│   ├── local-services.tsx
+│   ├── open-houses.tsx
+│   ├── first-30-days.tsx
+│   ├── things-to-do.tsx
+│   ├── day-trips.tsx
+│   ├── dayton-events.tsx
+│   ├── parks.tsx
+│   ├── breweries.tsx
+│   ├── golf.tsx
+│   ├── listing.tsx
+│   ├── edit-profile.tsx
+│   ├── privacy-policy.tsx
+│   └── terms-of-service.tsx
 │
 ├── api/
-│   ├── config.ts             Central API config (reads .env)
-│   ├── simplyrets.ts         IDX feed client
-│   ├── leads.ts              CRM webhook + SMS orchestration
-│   └── sms.ts                Twilio SMS helper
+│   ├── config.ts                Central config (reads all env vars)
+│   ├── trestle.ts               Trestle RESO Web API client (OAuth2, ready)
+│   ├── simplyrets.ts            SimplyRETS client (sandbox, used until Trestle)
+│   ├── claude.ts                Claude AI (DaytonBot)
+│   ├── leads.ts                 CRM webhook + Supabase lead capture
+│   └── sms.ts                   Twilio SMS helper
 │
 ├── shared/
-│   ├── components/
-│   │   ├── QuickActionTile.tsx
-│   │   ├── Header.tsx
-│   │   ├── LeadCaptureForm.tsx
-│   │   ├── ListingCard.tsx
-│   │   ├── ChatWidget.tsx
-│   │   └── GoldButton.tsx
-│   ├── theme/colors.ts       Brand color palette
-│   └── types/
-│       ├── listing.ts        SimplyRETS listing types
-│       └── lead.ts           Lead form types + CRM payload
+│   ├── auth/
+│   │   ├── AuthContext.tsx       Auth provider, save/unsave items
+│   │   └── useGoogleAuth.ts      Google OAuth hook (pending config)
+│   ├── components/              20+ shared UI components
+│   ├── analytics/               PostHog wrapper
+│   ├── search/                  Global search data
+│   ├── theme/colors.ts           Brand palette (black, gold, white)
+│   └── types/                   listing.ts, lead.ts
 │
-├── content/
-│   ├── neighborhoods.json    7 Dayton neighborhoods with data
-│   └── employers.json        7 major Dayton employers
+├── supabase/
+│   ├── community_schema.sql     Community board tables (run ✅)
+│   ├── leads_schema.sql         Leads table (run ✅ Apr 9 2026)
+│   └── migrations/              Event and other migrations
 │
-├── assets/images/            Icons, splash, adaptive icon
-├── web/index.html            Web shell
-├── global.css                Tailwind base
-├── tailwind.config.js        Brand colors + NativeWind preset
-├── babel.config.js           NativeWind Babel transform
-├── metro.config.js           NativeWind Metro plugin
-├── app.json                  Expo config
-├── tsconfig.json             TypeScript paths
-└── .env.example              Environment variable template
+├── assets/images/               icon.png, adaptive-icon.png, logos, headshots
+├── content/                     neighborhoods.json, employers.json, col-cities.json
+├── app.json                     Expo config — bundle ID, EAS project ID, privacy manifest
+├── eas.json                     EAS build + submit profiles
+├── .env                         Environment variables (DO NOT commit)
+├── .env.example                 Template (safe to commit)
+└── MAC-SETUP.md                 Mac environment setup guide
 ```
+
+---
+
+## Supabase Tables (all live, RLS enabled)
+
+| Table | Purpose | Rows |
+|---|---|---|
+| `profiles` | User accounts + persona | 4 |
+| `saved_items` | Bookmarked tools/listings | 3 |
+| `local_services` | Service provider directory | 6 |
+| `temp_housing` | Temp housing listings | 4 |
+| `community_posts` | Community board posts | 2 |
+| `community_replies` | Post replies | 0 |
+| `post_upvotes` | Feedback upvotes | 1 |
+| `leads` | Contact form submissions | 0 |
