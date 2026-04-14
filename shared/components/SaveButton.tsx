@@ -12,6 +12,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useAuth } from "../auth/AuthContext";
 import { Colors } from "../theme/colors";
 import type { SavedItem } from "../auth/AuthContext";
+import { scheduleEventReminder, cancelEventReminder } from "../../lib/notifications";
 
 interface SaveButtonProps {
   itemType: SavedItem["item_type"];
@@ -22,16 +23,26 @@ interface SaveButtonProps {
   size?:    number;
   /** Light variant — white icon (for use over dark/photo backgrounds) */
   light?:   boolean;
+  /**
+   * For event items: pass { event_month: "APR", event_day: "12", event_year: 2026, event_venue: "..." }
+   * to automatically schedule a morning reminder on the day of the event.
+   */
+  metadata?: Record<string, any>;
 }
 
 export default function SaveButton({
   itemType, itemId, title, subtitle, route,
-  size = 22, light = false,
+  size = 22, light = false, metadata,
 }: SaveButtonProps) {
   const { user, isSaved, saveItem, unsaveItem } = useAuth();
   const [busy, setBusy] = useState(false);
 
   const saved = isSaved(itemType, itemId);
+
+  /** Returns true if this item has event date metadata we can schedule a reminder for. */
+  function hasEventDate() {
+    return !!(metadata?.event_month && metadata?.event_day);
+  }
 
   async function handlePress() {
     if (!user) {
@@ -51,6 +62,10 @@ export default function SaveButton({
     try {
       if (saved) {
         await unsaveItem(itemType, itemId);
+        // Cancel any scheduled reminder for this event
+        if (hasEventDate()) {
+          await cancelEventReminder(itemId);
+        }
       } else {
         await saveItem({
           item_type: itemType,
@@ -58,8 +73,19 @@ export default function SaveButton({
           title,
           subtitle:  subtitle ?? null,
           route:     route    ?? null,
-          metadata:  null,
+          metadata:  metadata ?? null,
         });
+        // Schedule a morning reminder if this is an event with a date
+        if (hasEventDate()) {
+          await scheduleEventReminder(
+            itemId,
+            title,
+            metadata!.event_venue ?? subtitle ?? "",
+            metadata!.event_month,
+            metadata!.event_day,
+            metadata!.event_year ?? new Date().getFullYear(),
+          );
+        }
       }
     } finally {
       setBusy(false);

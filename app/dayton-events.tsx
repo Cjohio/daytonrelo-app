@@ -229,6 +229,12 @@ function EventRow({ event }: { event: DaytonEvent }) {
           subtitle={`${event.date} · ${event.venue}`}
           route="/dayton-events"
           size={20}
+          metadata={{
+            event_month: event.month,
+            event_day:   event.day,
+            event_year:  2026,
+            event_venue: event.venue,
+          }}
         />
       </View>
     </View>

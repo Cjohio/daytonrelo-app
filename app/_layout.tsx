@@ -7,6 +7,7 @@ import { Colors } from "../shared/theme/colors";
 import HeaderActions from "../shared/components/HeaderActions";
 import { AuthProvider, useAuth } from "../shared/auth/AuthContext";
 import { _setPostHogInstance } from "../shared/analytics";
+import { requestNotificationPermissions } from "../lib/notifications";
 
 const POSTHOG_API_KEY = process.env.EXPO_PUBLIC_POSTHOG_API_KEY ?? "";
 const POSTHOG_HOST    = process.env.EXPO_PUBLIC_POSTHOG_HOST ?? "https://us.i.posthog.com";
@@ -19,6 +20,21 @@ const SCREEN_OPTIONS = {
   contentStyle:     { backgroundColor: Colors.white },
   headerRight:      () => <HeaderActions />,
 };
+
+// Request notification permissions once after the user is signed in
+function NotificationSetup() {
+  const { user } = useAuth();
+  const requested = useRef(false);
+
+  useEffect(() => {
+    if (user && !requested.current) {
+      requested.current = true;
+      requestNotificationPermissions().catch(() => {});
+    }
+  }, [user]);
+
+  return null;
+}
 
 // Auth gate — boots unauthenticated users to signup
 function AuthGate() {
@@ -63,6 +79,7 @@ export default function RootLayout() {
       <SafeAreaProvider>
         <AuthProvider>
           <AuthGate />
+          <NotificationSetup />
           <ScreenTracker />
           <StatusBar style="light" backgroundColor={Colors.black} />
           <Stack>
