@@ -167,7 +167,7 @@ export default function ExploreScreen() {
             placeholder="Address, neighborhood, zip…"
             value={query}
             onChangeText={setQuery}
-            onSubmitEditing={fetchListings}
+            onSubmitEditing={() => fetchListings()}
             placeholderTextColor={Colors.grayLight}
             returnKeyType="search"
           />
@@ -177,7 +177,7 @@ export default function ExploreScreen() {
             </TouchableOpacity>
           )}
         </View>
-        <TouchableOpacity style={styles.searchBtn} onPress={fetchListings}>
+        <TouchableOpacity style={styles.searchBtn} onPress={() => fetchListings()}>
           <Text style={styles.searchBtnText}>Search</Text>
         </TouchableOpacity>
       </View>

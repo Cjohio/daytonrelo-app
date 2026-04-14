@@ -26,9 +26,11 @@ import { Platform } from "react-native";
 // ─── Foreground notification behavior ────────────────────────────────────────
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: true,
-    shouldSetBadge:  true,
+    shouldShowAlert:  true,
+    shouldPlaySound:  true,
+    shouldSetBadge:   true,
+    shouldShowBanner: true,
+    shouldShowList:   true,
   }),
 });
 
@@ -93,7 +95,7 @@ export async function scheduleLocalNotification(
   try {
     return await Notifications.scheduleNotificationAsync({
       content: { title, body, sound: true },
-      trigger:  { seconds: triggerSeconds },
+      trigger:  { type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL, seconds: triggerSeconds },
     });
   } catch {
     return null;

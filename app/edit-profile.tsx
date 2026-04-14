@@ -20,9 +20,9 @@ const TIMELINES: { label: string; value: MoveTimeline }[] = [
 ];
 
 const PERSONAS: { label: string; value: Persona; icon: React.ComponentProps<typeof Ionicons>["name"] }[] = [
-  { label: "Military",   value: "military",  icon: "shield-checkmark-outline" },
-  { label: "Corporate",  value: "corporate", icon: "briefcase-outline" },
-  { label: "General",    value: "general",   icon: "person-outline" },
+  { label: "Military",    value: "military",   icon: "shield-checkmark-outline" },
+  { label: "Relocating",  value: "relocation", icon: "briefcase-outline" },
+  { label: "Discovering", value: "discover",   icon: "person-outline" },
 ];
 
 export default function EditProfileScreen() {
@@ -31,7 +31,7 @@ export default function EditProfileScreen() {
   const [fullName,   setFullName]   = useState(profile?.full_name     ?? "");
   const [phone,      setPhone]      = useState(profile?.phone         ?? "");
   const [timeline,   setTimeline]   = useState<MoveTimeline>(profile?.move_timeline ?? "just browsing");
-  const [persona,    setPersona]    = useState<Persona>(profile?.persona ?? "general");
+  const [persona,    setPersona]    = useState<Persona>((profile?.persona as Persona) ?? "discover");
   const [saving,     setSaving]     = useState(false);
 
   const handleSave = async () => {

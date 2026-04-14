@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { ScrollView, View, Text, TouchableOpacity, StyleSheet, Share } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { track } from "../shared/analytics";
 import BrandHeader, { BackBtn } from "../shared/components/BrandHeader";

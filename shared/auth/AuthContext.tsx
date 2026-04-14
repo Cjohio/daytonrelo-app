@@ -8,13 +8,14 @@ export type Persona = "military" | "relocation" | "discover";
 export type MoveTimeline = "0-3 months" | "3-6 months" | "6-12 months" | "12+ months" | "just browsing";
 
 export interface Profile {
-  id:            string;
-  full_name:     string;
-  email:         string;
-  phone:         string;
-  move_timeline: MoveTimeline;
-  persona:       Persona;
-  created_at:    string;
+  id:                      string;
+  full_name:               string;
+  email:                   string;
+  phone:                   string;
+  move_timeline:           MoveTimeline;
+  persona:                 Persona;
+  created_at:              string;
+  community_display_name?: string | null;
 }
 
 export interface SavedItem {

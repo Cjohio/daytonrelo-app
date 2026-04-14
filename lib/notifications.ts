@@ -12,9 +12,11 @@ import * as Device from "expo-device";
 // How notifications appear when the app is in the foreground
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: false,
-    shouldSetBadge:  false,
+    shouldShowAlert:  true,
+    shouldPlaySound:  false,
+    shouldSetBadge:   false,
+    shouldShowBanner: true,
+    shouldShowList:   true,
   }),
 });
 
@@ -81,7 +83,7 @@ export async function scheduleEventReminder(
         body:  venue,
         data:  { itemId },
       },
-      trigger: { date: reminderDate },
+      trigger: { type: Notifications.SchedulableTriggerInputTypes.DATE, date: reminderDate },
     });
 
     return id;

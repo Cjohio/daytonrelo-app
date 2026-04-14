@@ -101,9 +101,14 @@ export default function ChatScreen() {
       if (needsChris) {
         capture("chat_escalation_triggered", { trigger_message: trimmed.slice(0, 80) });
         try {
-          await sendAgentSMS(
-            `💬 DaytonBot Chat Lead\n──────────────────\nUser message: "${trimmed}"\n\nReply in app or call/text them directly.`
-          );
+          await sendAgentSMS({
+            name:         "DaytonBot Chat Lead",
+            email:        "",
+            phone:        "",
+            moveTimeline: "just-browsing",
+            employer:     "",
+            message:      `💬 Chat escalation\nUser message: "${trimmed}"`,
+          });
         } catch {
           // SMS is best-effort; don't break the chat
         }

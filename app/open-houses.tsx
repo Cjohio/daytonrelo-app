@@ -48,7 +48,8 @@ function nextWeekendDates(): { sat: string; sun: string } {
 // The SimplyRETS sandbox rarely returns openHouses data, so we generate
 // display-only windows from the listing's list date for a realistic preview.
 function fakeWindow(listing: Listing): { day: string; time: string } {
-  const seed   = listing.mlsId % 3;
+  // mlsId is a string — derive a small stable integer for selection
+  const seed   = (parseInt(listing.mlsId.replace(/\D/g, ""), 10) || 0) % 3;
   const days   = ["Saturday", "Sunday", "Saturday"];
   const times  = ["1:00 – 3:00 PM", "11:00 AM – 1:00 PM", "2:00 – 4:00 PM"];
   return { day: days[seed], time: times[seed] };

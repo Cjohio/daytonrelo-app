@@ -105,6 +105,7 @@ export default function ListingDetailScreen() {
       );
       return;
     }
+    if (!listing) return;
     if (saved) {
       unsaveItem("listing", listing.mlsId);
     } else {

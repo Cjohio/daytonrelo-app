@@ -228,7 +228,7 @@ function AffordTab() {
             <ResultRow label="Loan Amount"         value={fmtDollar(loanAmt)} />
             <ResultRow label="Down Payment"         value={fmtDollar(down)} />
             <ResultRow label="Principal & Interest" value={fmtDollar(pi) + "/mo"} />
-            <ResultRow label="Est. Property Tax"    value={fmtDollar(tax) + "/mo"} hint faint />
+            <ResultRow label="Est. Property Tax"    value={fmtDollar(tax) + "/mo"} faint />
             <ResultRow label="Est. Home Insurance"  value={fmtDollar(ins) + "/mo"} faint />
             {pmi > 0 && (
               <ResultRow label="Est. PMI (< 20% down)" value={fmtDollar(pmi) + "/mo"} faint />

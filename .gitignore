@@ -3,6 +3,7 @@ node_modules/
 dist/
 web-build/
 .env
+.assets-archive/
 *.jks
 *.p8
 *.p12

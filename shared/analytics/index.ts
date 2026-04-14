@@ -45,6 +45,17 @@ export type AnalyticsEvent =
 
 export type EventProperties = Record<string, string | number | boolean | null | undefined>;
 
+// Strip undefined values so PostHog's JsonType contract holds.
+function sanitize(props?: EventProperties): Record<string, string | number | boolean | null> | undefined {
+  if (!props) return undefined;
+  const out: Record<string, string | number | boolean | null> = {};
+  for (const k of Object.keys(props)) {
+    const v = props[k];
+    if (v !== undefined) out[k] = v;
+  }
+  return out;
+}
+
 // ── Standalone track helper (for use outside React components) ────────────────
 //  In React components prefer the useAnalytics() hook below so PostHog
 //  can auto-attach session / person context.
@@ -57,7 +68,7 @@ export function _setPostHogInstance(ph: ReturnType<typeof usePostHog>) {
 export function track(event: AnalyticsEvent, properties?: EventProperties) {
   if (!isConfigured) return;
   try {
-    _posthog?.capture(event, properties);
+    _posthog?.capture(event, sanitize(properties));
   } catch {
     // Never let analytics crash the app
   }
@@ -66,7 +77,7 @@ export function track(event: AnalyticsEvent, properties?: EventProperties) {
 export function identify(userId: string, traits?: EventProperties) {
   if (!isConfigured) return;
   try {
-    _posthog?.identify(userId, traits);
+    _posthog?.identify(userId, sanitize(traits));
   } catch {}
 }
 
@@ -84,7 +95,7 @@ export function useAnalytics() {
   function capture(event: AnalyticsEvent, properties?: EventProperties) {
     if (!isConfigured) return;
     try {
-      posthog.capture(event, properties);
+      posthog.capture(event, sanitize(properties));
     } catch {}
   }
 
