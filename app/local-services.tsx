@@ -5,6 +5,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "../shared/theme/colors";
 import { supabase } from "../lib/supabase";
+import SaveButton from "../shared/components/SaveButton";
 
 interface LocalService {
   id: string;
@@ -135,6 +136,14 @@ export default function LocalServicesScreen() {
                     <Text style={s.actionBtnOutlineText}>Website</Text>
                   </TouchableOpacity>
                 )}
+                <SaveButton
+                  itemType="page"
+                  itemId={`service-${svc.id}`}
+                  title={svc.name}
+                  subtitle={svc.category}
+                  route="/local-services"
+                  size={22}
+                />
               </View>
             </View>
           ))
@@ -184,7 +193,7 @@ const s = StyleSheet.create({
   locationTag:   { flexDirection: "row", alignItems: "center", gap: 3 },
   locationText:  { color: Colors.gray, fontSize: 12 },
   cardDesc:      { color: Colors.gray, fontSize: 13, lineHeight: 18, marginBottom: 10 },
-  actions:       { flexDirection: "row", gap: 8 },
+  actions:       { flexDirection: "row", gap: 8, alignItems: "center" },
   actionBtn: {
     flexDirection: "row", alignItems: "center", gap: 6,
     backgroundColor: Colors.gold, borderRadius: 8, paddingHorizontal: 12, paddingVertical: 8,

@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
+import { router } from "expo-router";
 import BrandHeader, { BackBtn } from "../shared/components/BrandHeader";
 import {
   View, Text, ScrollView, TouchableOpacity,
@@ -94,6 +95,8 @@ export default function DaytonEventsScreen() {
 
   return (
     <View style={s.container}>
+      <BrandHeader left={<BackBtn onPress={() => router.back()} />} title="Dayton Events" />
+
       {/* ── Hero stats bar ──────────────────────────────────────────────── */}
       <View style={s.statsBar}>
         <View style={s.stat}>
@@ -134,10 +137,7 @@ export default function DaytonEventsScreen() {
             onPress={() => setActiveCategory(key)}
             activeOpacity={0.8}
           >
-            <Text
-              numberOfLines={1}
-              style={[s.filterChipText, activeCategory === key && s.filterChipTextActive]}
-            >
+            <Text style={[s.filterChipText, activeCategory === key && s.filterChipTextActive]}>
               {label}
             </Text>
           </TouchableOpacity>
@@ -278,12 +278,12 @@ const s = StyleSheet.create({
     paddingHorizontal: 16, paddingVertical: 10, gap: 8,
   },
   filterChip: {
-    paddingHorizontal: 14, paddingVertical: 7, borderRadius: 20,
+    paddingHorizontal: 16, paddingVertical: 9, borderRadius: 20,
     backgroundColor: Colors.white, borderWidth: 1.5, borderColor: Colors.border,
-    flexShrink: 0, flexGrow: 0,
+    flexShrink: 0, flexGrow: 0, alignSelf: "center",
   },
   filterChipActive: { backgroundColor: Colors.black, borderColor: Colors.black },
-  filterChipText: { color: Colors.gray, fontSize: 12, fontWeight: "600" },
+  filterChipText: { color: Colors.gray, fontSize: 13, fontWeight: "600", flexShrink: 0 },
   filterChipTextActive: { color: Colors.gold, fontWeight: "700" },
 
   listContent: { padding: 16, paddingBottom: 40 },

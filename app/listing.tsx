@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import {
   View, Text, ScrollView, Image, FlatList,
-  TouchableOpacity, StyleSheet, Linking,
+  TouchableOpacity, StyleSheet, Linking, Platform,
   ActivityIndicator, Dimensions, Alert, Share,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
@@ -124,7 +124,34 @@ export default function ListingDetailScreen() {
     const msg = encodeURIComponent(
       `Hi Chris! I'm interested in scheduling a tour of ${fullAddress}. Is that possible?`
     );
-    Linking.openURL(`sms:+1${CHRIS_PHONE}?body=${msg}`);
+    // iOS requires &body=, Android requires ?body=
+    const smsUrl = Platform.OS === "ios"
+      ? `sms:+1${CHRIS_PHONE}&body=${msg}`
+      : `sms:+1${CHRIS_PHONE}?body=${msg}`;
+
+    Linking.canOpenURL(smsUrl)
+      .then((supported) => {
+        if (supported) return Linking.openURL(smsUrl);
+        // Fallback: show options if SMS isn't available
+        Alert.alert(
+          "Schedule a Tour",
+          `Contact Chris to schedule a tour of ${fullAddress}`,
+          [
+            { text: "Call Chris", onPress: () => Linking.openURL(`tel:+1${CHRIS_PHONE}`) },
+            { text: "Cancel", style: "cancel" },
+          ]
+        );
+      })
+      .catch(() => {
+        Alert.alert(
+          "Schedule a Tour",
+          "Contact Chris at (937) 241-3484 to schedule a tour.",
+          [
+            { text: "Call Now", onPress: () => Linking.openURL(`tel:+1${CHRIS_PHONE}`) },
+            { text: "OK", style: "cancel" },
+          ]
+        );
+      });
   }
 
   function callChris() {
