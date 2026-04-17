@@ -298,7 +298,7 @@ export default function MilitaryBenefitsScreen() {
 
   return (
     <SafeAreaView style={styles.safe} edges={["top"]}>
-      <BrandHeader
+      <BrandHeader noTopInset
         left={<BackBtn onPress={() => router.canGoBack() ? router.back() : router.replace("/military-hub" as any)} />}
       />
 

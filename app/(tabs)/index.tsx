@@ -222,13 +222,13 @@ export default function LandingScreen() {
 const s = StyleSheet.create({
   safe:   { flex: 1, backgroundColor: Colors.black },
   searchCorner: {
-    position: "absolute", top: 52, right: 20, zIndex: 100,
+    position: "absolute", top: 10, right: 20, zIndex: 100,
   },
   scroll: { flex: 1 },
   content: { paddingBottom: 24 },
 
   // Header
-  header: { alignItems: "center", paddingTop: 32, paddingBottom: 8 },
+  header: { alignItems: "center", paddingTop: 10, paddingBottom: 8 },
   logoImage: {
     width: 280, height: 100, marginBottom: 2,
   },

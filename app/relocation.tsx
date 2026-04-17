@@ -84,15 +84,19 @@ const EMPLOYERS = [
 
 // ─── Quick tools ──────────────────────────────────────────────────────────────
 const QUICK_LINKS = [
+  { icon: "search-outline",          label: "Home Search",              route: "/(tabs)/explore" },
+  { icon: "location-outline",        label: "Explore Neighborhoods",    route: "/neighborhoods" },
+  { icon: "school-outline",          label: "School Guide",             route: "/schools" },
+  { icon: "construct-outline",       label: "Local Services",           route: "/local-services" },
+  { icon: "calculator-outline",      label: "Mortgage Calculator",      route: "/mortgage-calculator" },
+  { icon: "calendar-outline",        label: "Events Calendar",          route: "/dayton-events" },
+  { icon: "leaf-outline",            label: "Parks & Outdoors",         route: "/parks" },
   { icon: "briefcase-outline",       label: "Relocation Package Guide", route: "/relo-package" },
   { icon: "car-outline",             label: "Commute Finder",           route: "/commute-finder" },
   { icon: "bed-outline",             label: "Temporary Housing",        route: "/temp-housing" },
   { icon: "receipt-outline",         label: "Closing Cost Calculator",  route: "/closing-costs" },
   { icon: "git-compare-outline",     label: "Compare Neighborhoods",    route: "/neighborhood-compare" },
-  { icon: "home-outline",            label: "Mortgage Calculator",      route: "/mortgage-calculator" },
-  { icon: "school-outline",          label: "School Guide",             route: "/schools" },
   { icon: "swap-horizontal-outline", label: "Cost of Living Comparison",route: "/cost-of-living" },
-  { icon: "location-outline",        label: "Explore Neighborhoods",    route: "/neighborhoods" },
   { icon: "business-outline",        label: "Employer Map",             route: "/employer-map" },
   { icon: "apps-outline",            label: "All Tools",                route: "/(tabs)/tools" },
   { icon: "person-outline",          label: "Contact Chris",            route: "/(tabs)/contact" },
@@ -124,7 +128,7 @@ export default function RelocationHub() {
   return (
     <SafeAreaView style={s.safe} edges={["top"]}>
       {/* ── Header bar ─────────────────────────────────────────────────── */}
-      <BrandHeader
+      <BrandHeader noTopInset
           left={<SwitchBtn onPress={switchPath} />}
           right={<HeaderActions />}
         />

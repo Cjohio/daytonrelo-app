@@ -291,6 +291,7 @@ export default function CommunityScreen() {
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
       <BrandHeader
+        noTopInset
         right={user ? (
           <TouchableOpacity
             style={styles.editNameBtn}

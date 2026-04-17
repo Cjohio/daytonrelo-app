@@ -95,7 +95,7 @@ export default function NeighborhoodCompareScreen() {
   const SLOT_COLORS = { A: "#1A3A5C", B: Colors.black, C: "#2D5A1B" };
 
   return (
-    <SafeAreaView style={s.safe} edges={["bottom"]}>
+    <SafeAreaView style={s.safe} edges={[]}>
       <BrandHeader left={<BackBtn onPress={() => router.back()} />} />
       <ScrollView style={s.scroll} contentContainerStyle={s.content} showsVerticalScrollIndicator={false}>
 

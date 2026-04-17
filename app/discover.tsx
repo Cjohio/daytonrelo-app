@@ -111,7 +111,7 @@ export default function DiscoverHub() {
   return (
     <SafeAreaView style={s.safe} edges={["top"]}>
       {/* ── Header bar ─────────────────────────────────────────────────── */}
-      <BrandHeader
+      <BrandHeader noTopInset
           left={<SwitchBtn onPress={switchPath} />}
           right={<HeaderActions />}
         />

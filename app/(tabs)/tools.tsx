@@ -421,6 +421,7 @@ export default function ToolsScreen() {
 
       {/* Header */}
       <BrandHeader
+          noTopInset
           left={<BackBtn onPress={() => router.canGoBack() ? router.back() : router.replace("/(tabs)/" as any)} />}
           right={<HeaderActions />}
         />

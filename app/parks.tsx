@@ -438,7 +438,7 @@ export default function ParksScreen() {
 
   return (
     <SafeAreaView style={sb.safe} edges={["top"]}>
-      <BrandHeader left={<BackBtn onPress={() => router.back()} />} />
+      <BrandHeader noTopInset left={<BackBtn onPress={() => router.back()} />} />
       {/* Tab switcher */}
       <View style={sb.tabRow}>
         <TouchableOpacity

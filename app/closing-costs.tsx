@@ -88,7 +88,7 @@ export default function ClosingCostsScreen() {
   const { lineItems, total, loanAmt } = calcClosingCosts(priceNum, downNum, loanType, firstUse);
 
   return (
-    <SafeAreaView style={s.safe} edges={["bottom"]}>
+    <SafeAreaView style={s.safe} edges={[]}>
       <BrandHeader left={<BackBtn onPress={() => router.back()} />} />
       <ScrollView style={s.scroll} contentContainerStyle={s.content} showsVerticalScrollIndicator={false}>
 

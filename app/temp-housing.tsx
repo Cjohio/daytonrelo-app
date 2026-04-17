@@ -94,7 +94,7 @@ export default function TempHousingScreen() {
   const visible = filter === "all" ? listings : listings.filter(l => l.housing_type === filter);
 
   return (
-    <SafeAreaView style={s.safe} edges={["bottom"]}>
+    <SafeAreaView style={s.safe} edges={[]}>
       <BrandHeader left={<BackBtn onPress={() => router.back()} />} />
       <ScrollView style={s.scroll} contentContainerStyle={s.content} showsVerticalScrollIndicator={false}>
 

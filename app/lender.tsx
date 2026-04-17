@@ -261,7 +261,7 @@ export default function LenderScreen() {
 
   return (
     <SafeAreaView style={s.safe} edges={["top"]}>
-      <BrandHeader left={<BackBtn onPress={() => router.back()} />} />
+      <BrandHeader noTopInset left={<BackBtn onPress={() => router.back()} />} />
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={s.content}

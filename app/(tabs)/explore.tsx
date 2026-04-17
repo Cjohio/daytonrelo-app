@@ -139,6 +139,7 @@ export default function ExploreScreen() {
       <ChatFAB extraBottom={64} />
       {/* Header */}
       <BrandHeader
+          noTopInset
           left={<BackBtn onPress={() => router.canGoBack() ? router.back() : router.replace("/(tabs)/" as any)} />}
           right={<HeaderActions />}
         />

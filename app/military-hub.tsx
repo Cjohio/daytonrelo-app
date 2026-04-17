@@ -56,19 +56,22 @@ const VA_BENEFITS = [
 
 // ─── Quick action links ───────────────────────────────────────────────────────
 const QUICK_LINKS = [
+  { icon: "search-outline",           label: "Home Search",                  route: "/(tabs)/explore" },
+  { icon: "home-outline",             label: "Mortgage Calculator",          route: "/mortgage-calculator" },
+  { icon: "location-outline",         label: "Explore Neighborhoods",        route: "/neighborhoods" },
+  { icon: "school-outline",           label: "School Guide",                 route: "/schools" },
+  { icon: "construct-outline",        label: "Local Services",               route: "/local-services" },
+  { icon: "calendar-outline",         label: "Events Calendar",              route: "/dayton-events" },
   { icon: "ribbon-outline",           label: "Military Home Buying Benefits", route: "/military-benefits" },
-  { icon: "checkbox-outline",        label: "PCS Timeline Tracker",        route: "/pcs-timeline" },
-  { icon: "shield-outline",          label: "On-Base vs Off-Base Guide",   route: "/on-base-vs-off" },
-  { icon: "airplane-outline",        label: "WPAFB Base Guide",            route: "/wpafb" },
-  { icon: "calculator-outline",      label: "BAH Calculator",              route: "/bah-calculator" },
-  { icon: "receipt-outline",         label: "Closing Cost Calculator",     route: "/closing-costs" },
-  { icon: "git-compare-outline",     label: "Compare Neighborhoods",       route: "/neighborhood-compare" },
-  { icon: "home-outline",            label: "Mortgage Calculator",         route: "/mortgage-calculator" },
-  { icon: "school-outline",          label: "School Guide",                route: "/schools" },
-  { icon: "location-outline",        label: "Explore Neighborhoods",       route: "/neighborhoods" },
-  { icon: "swap-horizontal-outline", label: "Cost of Living vs. Your Base",route: "/cost-of-living" },
-  { icon: "apps-outline",            label: "All Tools",                   route: "/(tabs)/tools" },
-  { icon: "person-outline",          label: "Contact Chris",               route: "/(tabs)/contact" },
+  { icon: "checkbox-outline",         label: "PCS Timeline Tracker",         route: "/pcs-timeline" },
+  { icon: "shield-outline",           label: "On-Base vs Off-Base Guide",    route: "/on-base-vs-off" },
+  { icon: "airplane-outline",         label: "WPAFB Base Guide",             route: "/wpafb" },
+  { icon: "calculator-outline",       label: "BAH Calculator",               route: "/bah-calculator" },
+  { icon: "receipt-outline",          label: "Closing Cost Calculator",      route: "/closing-costs" },
+  { icon: "git-compare-outline",      label: "Compare Neighborhoods",        route: "/neighborhood-compare" },
+  { icon: "swap-horizontal-outline",  label: "Cost of Living vs. Your Base", route: "/cost-of-living" },
+  { icon: "apps-outline",             label: "All Tools",                    route: "/(tabs)/tools" },
+  { icon: "person-outline",           label: "Contact Chris",                route: "/(tabs)/contact" },
 ];
 
 // ─── Official resources ───────────────────────────────────────────────────────
@@ -90,7 +93,7 @@ export default function MilitaryHub() {
   return (
     <SafeAreaView style={s.safe} edges={["top"]}>
       {/* ── Header bar ─────────────────────────────────────────────────── */}
-      <BrandHeader
+      <BrandHeader noTopInset
           left={<SwitchBtn onPress={switchPath} />}
           right={<HeaderActions />}
         />

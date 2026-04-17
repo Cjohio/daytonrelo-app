@@ -186,7 +186,7 @@ export default function FirstThirtyDaysScreen() {
       <ChatFAB />
 
       {/* ── Header ─────────────────────────────────────────────────────────── */}
-      <BrandHeader left={<BackBtn onPress={() => router.back()} />} />
+      <BrandHeader noTopInset left={<BackBtn onPress={() => router.back()} />} />
 
       {/* ── Progress bar ───────────────────────────────────────────────────── */}
       <View style={s.progressWrap}>

@@ -34,7 +34,7 @@ export default function ContactScreen() {
   return (
     <SafeAreaView style={styles.safe} edges={["top"]}>
       <ChatFAB extraBottom={64} />
-      <BrandHeader right={<HeaderActions />} />
+      <BrandHeader noTopInset right={<HeaderActions />} />
 
       <ScrollView style={styles.scroll} contentContainerStyle={styles.content}>
 

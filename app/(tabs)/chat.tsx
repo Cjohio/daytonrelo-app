@@ -143,6 +143,7 @@ export default function ChatScreen() {
     <SafeAreaView style={s.safe} edges={["top"]}>
       {/* Header */}
       <BrandHeader
+          noTopInset
           left={<BackBtn onPress={() => router.canGoBack() ? router.back() : router.replace("/(tabs)/" as any)} />}
           right={
             <View style={s.headerRight}>

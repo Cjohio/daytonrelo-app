@@ -337,7 +337,7 @@ export default function BreweriesScreen() {
 
   return (
     <SafeAreaView style={sb.safe} edges={["top"]}>
-      <BrandHeader left={<BackBtn onPress={() => router.back()} />} />
+      <BrandHeader noTopInset left={<BackBtn onPress={() => router.back()} />} />
 
       {/* City filter chips */}
       <ScrollView

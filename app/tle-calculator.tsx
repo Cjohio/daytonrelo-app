@@ -91,7 +91,7 @@ export default function TLECalculatorScreen() {
 
   return (
     <SafeAreaView style={s.safe} edges={["top"]}>
-      <BrandHeader left={<BackBtn onPress={() => router.back()} />} />
+      <BrandHeader noTopInset left={<BackBtn onPress={() => router.back()} />} />
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : undefined}>
         <ScrollView style={s.scroll} contentContainerStyle={s.content} keyboardShouldPersistTaps="handled">
 

@@ -381,7 +381,7 @@ export default function GolfScreen() {
 
   return (
     <SafeAreaView style={sb.safe} edges={["top"]}>
-      <BrandHeader left={<BackBtn onPress={() => router.back()} />} />
+      <BrandHeader noTopInset left={<BackBtn onPress={() => router.back()} />} />
 
       {/* Filter chips */}
       <ScrollView

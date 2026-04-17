@@ -422,7 +422,7 @@ export default function SchoolsScreen() {
     <SafeAreaView style={s.safe} edges={["top"]}>
 
       {/* Header */}
-      <BrandHeader left={<BackBtn onPress={() => router.back()} />} />
+      <BrandHeader noTopInset left={<BackBtn onPress={() => router.back()} />} />
 
       {/* Tab switcher */}
       <View style={s.tabRow}>

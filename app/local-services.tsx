@@ -69,7 +69,7 @@ export default function LocalServicesScreen() {
   const visible = filter === "all" ? services : services.filter(s => s.category === filter);
 
   return (
-    <SafeAreaView style={s.safe} edges={["bottom"]}>
+    <SafeAreaView style={s.safe} edges={[]}>
       <BrandHeader left={<BackBtn onPress={() => router.back()} />} />
       <ScrollView style={s.scroll} contentContainerStyle={s.content} showsVerticalScrollIndicator={false}>
 

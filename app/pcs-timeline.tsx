@@ -186,7 +186,7 @@ export default function PCSTimelineScreen() {
   const pct        = Math.round((doneCount / totalItems) * 100);
 
   return (
-    <SafeAreaView style={s.safe} edges={["bottom"]}>
+    <SafeAreaView style={s.safe} edges={[]}>
       <BrandHeader left={<BackBtn onPress={() => router.back()} />} />
       <ScrollView style={s.scroll} contentContainerStyle={s.content} showsVerticalScrollIndicator={false}>
         {/* Progress bar */}

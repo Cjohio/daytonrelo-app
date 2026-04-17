@@ -1050,9 +1050,9 @@ export default function ThingsToDoScreen() {
                   onPress={() => setActive(label)}
                   activeOpacity={0.8}
                 >
-                  <Ionicons name={icon} size={13} color={isActive ? Colors.black : "#888"} />
+                  <Ionicons name={icon} size={16} color={isActive ? Colors.black : "#888"} />
                   <Text style={[s.tabText, isActive && s.tabTextActive]}>
-                    {label === "All" ? `All (${ATTRACTIONS.length})` : label.split(" ")[0]}
+                    {label === "All" ? `All (${ATTRACTIONS.length})` : label}
                   </Text>
                 </TouchableOpacity>
               );
@@ -1143,12 +1143,12 @@ const s = StyleSheet.create({
   },
   tabsRow: { paddingHorizontal: 16, gap: 8 },
   tab: {
-    flexDirection: "row", alignItems: "center", gap: 5,
-    paddingHorizontal: 12, paddingVertical: 7,
+    flexDirection: "row", alignItems: "center", gap: 6,
+    paddingHorizontal: 14, paddingVertical: 9,
     borderRadius: 20, borderWidth: 1.5, borderColor: "#E0E0E0",
     backgroundColor: Colors.white,
   },
-  tabText:       { color: "#888", fontSize: 12, fontWeight: "600" },
+  tabText:       { color: "#888", fontSize: 14, fontWeight: "600" },
   tabTextActive: { color: Colors.black, fontWeight: "800" },
 
   // Results header
