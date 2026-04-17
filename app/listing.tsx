@@ -161,6 +161,7 @@ export default function ListingDetailScreen() {
   // ── Render ───────────────────────────────────────────────────────────────────
   return (
     <View style={s.container}>
+      <BrandHeader left={<BackBtn onPress={() => router.back()} />} />
 
       {/* ── Photo gallery ────────────────────────────────────────────────── */}
       <View style={s.gallery}>

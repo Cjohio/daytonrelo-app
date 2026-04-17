@@ -480,6 +480,7 @@ export default function MortgageCalculatorScreen() {
 
   return (
     <SafeAreaView style={s.safe} edges={["top"]}>
+      <BrandHeader left={<BackBtn onPress={() => router.back()} />} />
       {/* Tab switcher */}
       <View style={s.tabRow}>
         <TouchableOpacity

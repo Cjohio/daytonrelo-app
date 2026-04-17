@@ -23,6 +23,7 @@ export default function EmployerMapScreen() {
 
   return (
     <>
+    <BrandHeader left={<BackBtn onPress={() => router.back()} />} />
     <ScrollView style={styles.scroll} contentContainerStyle={styles.content}>
       {/* Header */}
       <View style={styles.intro}>

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { router } from "expo-router";
 import BrandHeader, { BackBtn } from "../shared/components/BrandHeader";
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -93,6 +94,7 @@ export default function NeighborhoodCompareScreen() {
 
   return (
     <SafeAreaView style={s.safe} edges={["bottom"]}>
+      <BrandHeader left={<BackBtn onPress={() => router.back()} />} />
       <ScrollView style={s.scroll} contentContainerStyle={s.content} showsVerticalScrollIndicator={false}>
 
         {/* 3-slot selection bar */}

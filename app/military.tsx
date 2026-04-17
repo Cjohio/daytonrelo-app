@@ -47,6 +47,7 @@ const DAYTON_NEIGHBORHOODS = [
 export default function MilitaryScreen() {
   return (
     <>
+    <BrandHeader left={<BackBtn onPress={() => router.back()} />} />
     <ScrollView style={styles.scroll} contentContainerStyle={styles.content}>
       {/* Hero */}
       <View style={styles.hero}>

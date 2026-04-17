@@ -72,6 +72,7 @@ export default function CommuteFinderScreen() {
 
   return (
     <SafeAreaView style={s.safe} edges={["bottom"]}>
+      <BrandHeader left={<BackBtn onPress={() => router.back()} />} />
       <ScrollView style={s.scroll} contentContainerStyle={s.content} showsVerticalScrollIndicator={false}>
 
         <Text style={s.lead}>Pick your employer to see which Dayton neighborhoods give you the shortest commute.</Text>

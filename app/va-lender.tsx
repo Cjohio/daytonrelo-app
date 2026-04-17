@@ -59,6 +59,7 @@ const LOAN_TYPES = [
 export default function VALenderScreen() {
   return (
     <SafeAreaView style={s.safe} edges={["bottom"]}>
+      <BrandHeader left={<BackBtn onPress={() => router.back()} />} />
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={s.content}>
 
         {/* ── Hero card ────────────────────────────────────────────────────── */}

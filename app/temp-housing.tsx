@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { router } from "expo-router";
 import BrandHeader, { BackBtn } from "../shared/components/BrandHeader";
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Linking, ActivityIndicator } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -92,6 +93,7 @@ export default function TempHousingScreen() {
 
   return (
     <SafeAreaView style={s.safe} edges={["bottom"]}>
+      <BrandHeader left={<BackBtn onPress={() => router.back()} />} />
       <ScrollView style={s.scroll} contentContainerStyle={s.content} showsVerticalScrollIndicator={false}>
 
         <View style={s.intro}>

@@ -65,6 +65,7 @@ export default function EditProfileScreen() {
 
   return (
     <SafeAreaView style={styles.safe} edges={["bottom"]}>
+      <BrandHeader left={<BackBtn onPress={() => router.back()} />} />
       <ScrollView style={styles.scroll} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
 
         {/* Name */}

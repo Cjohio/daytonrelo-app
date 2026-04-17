@@ -51,6 +51,7 @@ const OFF_CONS = [
 export default function OnBaseVsOffScreen() {
   return (
     <SafeAreaView style={s.safe} edges={["bottom"]}>
+      <BrandHeader left={<BackBtn onPress={() => router.back()} />} />
       <ScrollView style={s.scroll} contentContainerStyle={s.content} showsVerticalScrollIndicator={false}>
 
         {/* Intro */}

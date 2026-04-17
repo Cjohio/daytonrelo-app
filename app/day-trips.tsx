@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { router } from "expo-router";
 import BrandHeader, { BackBtn } from "../shared/components/BrandHeader";
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Linking } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -115,6 +116,7 @@ export default function DayTripsScreen() {
 
   return (
     <SafeAreaView style={s.safe} edges={["bottom"]}>
+      <BrandHeader left={<BackBtn onPress={() => router.back()} />} />
       <ScrollView style={s.scroll} contentContainerStyle={s.content} showsVerticalScrollIndicator={false}>
 
         <Text style={s.lead}>

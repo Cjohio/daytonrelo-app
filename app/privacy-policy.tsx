@@ -9,6 +9,8 @@ const CONTACT_PHONE = "(937) 241-3484";
 
 export default function PrivacyPolicyScreen() {
   return (
+    <>
+    <BrandHeader left={<BackBtn onPress={() => router.back()} />} />
     <ScrollView style={s.scroll} contentContainerStyle={s.content}>
 
       <Text style={s.intro}>
@@ -134,6 +136,7 @@ export default function PrivacyPolicyScreen() {
 
       <View style={{ height: 40 }} />
     </ScrollView>
+    </>
   );
 }
 

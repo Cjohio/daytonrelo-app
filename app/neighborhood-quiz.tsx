@@ -119,6 +119,7 @@ export default function NeighborhoodQuizScreen() {
     const ranked = rankNeighborhoods(computeScores(answers));
     return (
       <>
+      <BrandHeader left={<BackBtn onPress={() => router.back()} />} />
       <ScrollView style={styles.scroll} contentContainerStyle={styles.content}>
         <View style={styles.resultHero}>
           <Ionicons name="trophy" size={40} color={Colors.gold} />
@@ -174,6 +175,7 @@ export default function NeighborhoodQuizScreen() {
 
   return (
     <>
+    <BrandHeader left={<BackBtn onPress={() => router.back()} />} />
     <View style={styles.quizContainer}>
       {/* Progress bar */}
       <View style={styles.progressTrack}>
