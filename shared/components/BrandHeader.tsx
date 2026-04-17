@@ -1,5 +1,6 @@
 import React from "react";
 import { View, Image, TouchableOpacity, Text, StyleSheet } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "../theme/colors";
 
@@ -8,15 +9,19 @@ interface Props {
   left?:  React.ReactNode;
   /** Right slot — pass HeaderActions, a search icon, or null */
   right?: React.ReactNode;
+  /** Set to true if the parent SafeAreaView already handles the top inset */
+  noTopInset?: boolean;
 }
 
 /**
  * Shared branded header: [left] [CENTERED LOGO] [right]
- * Used on every screen so the brand is always visible.
+ * Automatically pads for the status bar / notch unless noTopInset is passed.
  */
-export default function BrandHeader({ left, right }: Props) {
+export default function BrandHeader({ left, right, noTopInset = false }: Props) {
+  const insets = useSafeAreaInsets();
+  const topPad = noTopInset ? 10 : insets.top + 10;
   return (
-    <View style={s.bar}>
+    <View style={[s.bar, { paddingTop: topPad }]}>
       {/* Left slot — fixed width so logo stays centered */}
       <View style={s.side}>{left ?? <View />}</View>
 
@@ -59,7 +64,7 @@ const s = StyleSheet.create({
     justifyContent:   "space-between",
     backgroundColor:  Colors.black,
     paddingHorizontal: 12,
-    paddingVertical:  10,
+    paddingBottom:    10,
     borderBottomWidth: 1,
     borderBottomColor: Colors.goldDark,
   },
