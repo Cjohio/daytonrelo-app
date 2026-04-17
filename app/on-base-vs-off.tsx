@@ -4,6 +4,8 @@ import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import BrandHeader, { BackBtn } from "../shared/components/BrandHeader";
 import { Colors } from "../shared/theme/colors";
+import AppTabBar from "../shared/components/AppTabBar";
+import ChatFAB from "../shared/components/ChatFAB";
 
 const ON_BASE_NEIGHBORHOODS = [
   { name: "Kittyhawk",    desc: "Family-focused with a strong community feel. Mix of duplexes and single-family homes.", waitlist: "4–8 months", rent: "BAH covers 100%", petFriendly: true },
@@ -167,6 +169,8 @@ export default function OnBaseVsOffScreen() {
           </TouchableOpacity>
         </View>
       </ScrollView>
+      <AppTabBar />
+      <ChatFAB />
     </SafeAreaView>
   );
 }

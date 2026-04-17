@@ -5,6 +5,8 @@ import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import BrandHeader, { BackBtn } from "../shared/components/BrandHeader";
 import { Colors } from "../shared/theme/colors";
+import AppTabBar from "../shared/components/AppTabBar";
+import ChatFAB from "../shared/components/ChatFAB";
 
 type LoanType = "va" | "conventional" | "fha";
 
@@ -206,6 +208,8 @@ export default function ClosingCostsScreen() {
           <Text style={s.ctaBtnText}>Meet Our Preferred Lender</Text>
         </TouchableOpacity>
       </ScrollView>
+      <AppTabBar />
+      <ChatFAB />
     </SafeAreaView>
   );
 }

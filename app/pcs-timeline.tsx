@@ -6,6 +6,8 @@ import { router } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import BrandHeader, { BackBtn } from "../shared/components/BrandHeader";
 import { Colors } from "../shared/theme/colors";
+import AppTabBar from "../shared/components/AppTabBar";
+import ChatFAB from "../shared/components/ChatFAB";
 
 const STORAGE_KEY        = "pcs_timeline_checked";
 const ORDERS_DATE_KEY    = "pcs_orders_report_date";
@@ -317,6 +319,8 @@ export default function PCSTimelineScreen() {
           ))}
         </View>
       </ScrollView>
+      <AppTabBar />
+      <ChatFAB />
     </SafeAreaView>
   );
 }

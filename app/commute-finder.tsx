@@ -5,6 +5,8 @@ import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import BrandHeader, { BackBtn } from "../shared/components/BrandHeader";
 import { Colors } from "../shared/theme/colors";
+import AppTabBar from "../shared/components/AppTabBar";
+import ChatFAB from "../shared/components/ChatFAB";
 
 const EMPLOYERS = [
   { id: "wpafb",    name: "Wright-Patterson AFB",  location: "Fairborn / Riverside",  sector: "Military / Govt", icon: "shield-outline" as const },
@@ -171,6 +173,8 @@ export default function CommuteFinderScreen() {
           </TouchableOpacity>
         </View>
       </ScrollView>
+      <AppTabBar />
+      <ChatFAB />
     </SafeAreaView>
   );
 }

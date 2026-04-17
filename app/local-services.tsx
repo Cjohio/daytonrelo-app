@@ -7,6 +7,8 @@ import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "../shared/theme/colors";
 import { supabase } from "../lib/supabase";
 import SaveButton from "../shared/components/SaveButton";
+import AppTabBar from "../shared/components/AppTabBar";
+import ChatFAB from "../shared/components/ChatFAB";
 
 interface LocalService {
   id: string;
@@ -163,6 +165,8 @@ export default function LocalServicesScreen() {
           </Text>
         </View>
       </ScrollView>
+      <AppTabBar />
+      <ChatFAB />
     </SafeAreaView>
   );
 }

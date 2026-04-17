@@ -5,6 +5,8 @@ import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import BrandHeader, { BackBtn } from "../shared/components/BrandHeader";
 import { Colors } from "../shared/theme/colors";
+import AppTabBar from "../shared/components/AppTabBar";
+import ChatFAB from "../shared/components/ChatFAB";
 
 const CATEGORIES = [
   {
@@ -163,6 +165,8 @@ export default function ReloPackageScreen() {
           </TouchableOpacity>
         </View>
       </ScrollView>
+      <AppTabBar />
+      <ChatFAB />
     </SafeAreaView>
   );
 }
