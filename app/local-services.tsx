@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { router } from "expo-router";
 import BrandHeader, { BackBtn } from "../shared/components/BrandHeader";
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Linking, ActivityIndicator } from "react-native";
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Linking, ActivityIndicator, Image } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "../shared/theme/colors";
@@ -17,6 +17,7 @@ interface LocalService {
   neighborhood: string | null;
   description: string | null;
   is_featured: boolean;
+  logo?: number | null; // local require() asset
 }
 
 type Category = { key: string; label: string; icon: React.ComponentProps<typeof Ionicons>["name"] };
@@ -36,12 +37,13 @@ const CATEGORIES: Category[] = [
 
 // Fallback if Supabase has no data yet
 const FALLBACK: LocalService[] = [
-  { id: "1", name: "Two Men and a Truck – Dayton", category: "mover", phone: "(937) 291-7161", website: "https://www.twomenandatruck.com", neighborhood: "Citywide", description: "Full-service moving. Chris's go-to for PCS and corporate moves.", is_featured: true },
-  { id: "2", name: "Dayton Moving & Storage",     category: "mover", phone: "(937) 254-3636", website: "https://daytonmoving.com",        neighborhood: "Citywide", description: "Family-owned. Specializes in military and corporate relocations.", is_featured: true },
-  { id: "3", name: "Roto-Rooter Dayton",          category: "plumber", phone: "(937) 222-3030", website: "https://www.rotorooter.com",  neighborhood: "Citywide", description: "24/7 plumbing and drain service.", is_featured: false },
-  { id: "4", name: "ARS / Rescue Rooter Dayton",  category: "hvac",    phone: "(937) 401-5050", website: "https://www.ars.com",         neighborhood: "Citywide", description: "Heating, cooling, and plumbing. Good for new homeowners.", is_featured: false },
-  { id: "5", name: "Merry Maids Dayton",           category: "cleaner", phone: "(937) 277-9993", website: "https://www.merrymaids.com", neighborhood: "Citywide", description: "Move-in/move-out cleaning. Bonded and insured.", is_featured: false },
-  { id: "6", name: "Mr. Electric of Dayton",       category: "electrician", phone: "(937) 401-0037", website: "https://www.mrelectric.com", neighborhood: "Citywide", description: "Licensed electricians for panel upgrades, outlets, and inspections.", is_featured: false },
+  { id: "1", name: "Two Men and a Truck – Dayton", category: "mover",       phone: "(937) 291-7161", website: "https://www.twomenandatruck.com", neighborhood: "Citywide", description: "Full-service moving. Chris's go-to for PCS and corporate moves.", is_featured: true },
+  { id: "2", name: "Dayton Moving & Storage",       category: "mover",       phone: "(937) 254-3636", website: "https://daytonmoving.com",         neighborhood: "Citywide", description: "Family-owned. Specializes in military and corporate relocations.", is_featured: true },
+  { id: "7", name: "Bluebird Construction",          category: "contractor",  phone: "(937) 315-1532", website: "https://bluebirdohio.com",         neighborhood: "New Carlisle / Dayton area", description: "Residential remodeling and construction with 18+ years of experience. Full-service from roofing, siding, and decks to kitchens, baths, and basements. Known for quality craftsmanship and on-time delivery.", is_featured: true, logo: require("../assets/images/bluebird-construction-logo.png") },
+  { id: "3", name: "Roto-Rooter Dayton",             category: "plumber",     phone: "(937) 222-3030", website: "https://www.rotorooter.com",        neighborhood: "Citywide", description: "24/7 plumbing and drain service.", is_featured: false },
+  { id: "4", name: "ARS / Rescue Rooter Dayton",     category: "hvac",        phone: "(937) 401-5050", website: "https://www.ars.com",               neighborhood: "Citywide", description: "Heating, cooling, and plumbing. Good for new homeowners.", is_featured: false },
+  { id: "5", name: "Merry Maids Dayton",              category: "cleaner",     phone: "(937) 277-9993", website: "https://www.merrymaids.com",        neighborhood: "Citywide", description: "Move-in/move-out cleaning. Bonded and insured.", is_featured: false },
+  { id: "6", name: "Mr. Electric of Dayton",          category: "electrician", phone: "(937) 401-0037", website: "https://www.mrelectric.com",        neighborhood: "Citywide", description: "Licensed electricians for panel upgrades, outlets, and inspections.", is_featured: false },
 ];
 
 export default function LocalServicesScreen() {
@@ -105,8 +107,11 @@ export default function LocalServicesScreen() {
               {svc.is_featured && (
                 <Text style={s.featuredLabel}>⭐ Chris Recommends</Text>
               )}
+              {svc.logo ? (
+                <Image source={svc.logo} style={s.cardLogo} resizeMode="contain" />
+              ) : null}
               <View style={s.cardHeader}>
-                <Text style={s.cardName}>{svc.name}</Text>
+                {!svc.logo && <Text style={s.cardName}>{svc.name}</Text>}
                 {svc.neighborhood && (
                   <View style={s.locationTag}>
                     <Ionicons name="location-outline" size={11} color={Colors.gray} />
@@ -190,6 +195,7 @@ const s = StyleSheet.create({
   },
   cardFeatured:  { borderColor: Colors.gold, borderWidth: 1.5 },
   featuredLabel: { color: Colors.gold, fontSize: 12, fontWeight: "700", marginBottom: 6 },
+  cardLogo:      { width: "70%", height: 44, marginBottom: 10, alignSelf: "flex-start" },
   cardHeader:    { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 6, gap: 8 },
   cardName:      { fontWeight: "700", fontSize: 15, color: Colors.black, flex: 1 },
   locationTag:   { flexDirection: "row", alignItems: "center", gap: 3 },
