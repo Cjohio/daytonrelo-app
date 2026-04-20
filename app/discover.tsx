@@ -1,4 +1,4 @@
-import { ScrollView, View, Text, TouchableOpacity, StyleSheet, Linking, Image } from "react-native";
+import { ScrollView, View, Text, TouchableOpacity, StyleSheet, Linking } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
@@ -11,30 +11,7 @@ import BrandHeader, { SwitchBtn } from "../shared/components/BrandHeader";
 import MarketSnapshot from "../shared/components/MarketSnapshot";
 import MortgageRates from "../shared/components/MortgageRates";
 import DaytonEvents from "../shared/components/DaytonEvents";
-
-// ─── Placeholder listings ─────────────────────────────────────────────────────
-const SAMPLE_LISTINGS = [
-  {
-    id: "1", price: "$289,000", address: "1822 Far Hills Ave", city: "Oakwood, OH",
-    beds: 4, baths: 2, sqft: "1,920", status: "Active",
-    photo: "https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=600&q=80",
-  },
-  {
-    id: "2", price: "$159,000", address: "618 Salem Ave", city: "Dayton, OH",
-    beds: 3, baths: 1, sqft: "1,300", status: "Active",
-    photo: "https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=600&q=80",
-  },
-  {
-    id: "3", price: "$375,000", address: "4190 Lamme Rd", city: "Miamisburg, OH",
-    beds: 5, baths: 3, sqft: "2,640", status: "Active",
-    photo: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=80",
-  },
-  {
-    id: "4", price: "$199,500", address: "905 Shroyer Rd", city: "Kettering, OH",
-    beds: 3, baths: 2, sqft: "1,450", status: "Active",
-    photo: "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=600&q=80",
-  },
-];
+import FeaturedListings from "../shared/components/FeaturedListings";
 
 // ─── Dayton highlights ────────────────────────────────────────────────────────
 const HIGHLIGHTS = [
@@ -177,44 +154,7 @@ export default function DiscoverHub() {
         <MortgageRates />
 
         {/* ── Featured listings ──────────────────────────────────────────── */}
-        <View style={s.featuredWrap}>
-          <View style={s.featuredHeader}>
-            <Text style={s.featuredTitle}>Homes Available Now</Text>
-            <TouchableOpacity style={s.featuredSeeAll} onPress={() => router.push("/(tabs)/explore" as any)}>
-              <Text style={s.featuredSeeAllText}>See All</Text>
-              <Ionicons name="arrow-forward" size={13} color={Colors.gold} />
-            </TouchableOpacity>
-          </View>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.featuredStrip}>
-            {SAMPLE_LISTINGS.map((l) => (
-              <TouchableOpacity
-                key={l.id}
-                style={s.featuredCard}
-                onPress={() => router.push("/(tabs)/explore" as any)}
-                activeOpacity={0.88}
-              >
-                <Image source={{ uri: l.photo }} style={s.featuredPhoto} resizeMode="cover" />
-                <View style={s.featuredBadge}><Text style={s.featuredBadgeText}>{l.status}</Text></View>
-                <View style={s.featuredInfo}>
-                  <Text style={s.featuredPrice}>{l.price}</Text>
-                  <Text style={s.featuredAddr} numberOfLines={1}>{l.address}</Text>
-                  <Text style={s.featuredCity} numberOfLines={1}>{l.city}</Text>
-                  <View style={s.featuredSpecs}>
-                    <Text style={s.featuredSpec}>{l.beds} bd</Text>
-                    <Text style={s.featuredSpecDot}>·</Text>
-                    <Text style={s.featuredSpec}>{l.baths} ba</Text>
-                    <Text style={s.featuredSpecDot}>·</Text>
-                    <Text style={s.featuredSpec}>{l.sqft} sf</Text>
-                  </View>
-                </View>
-              </TouchableOpacity>
-            ))}
-            <TouchableOpacity style={s.featuredMoreTile} onPress={() => router.push("/(tabs)/explore" as any)}>
-              <Ionicons name="home-outline" size={24} color={Colors.gold} />
-              <Text style={s.featuredMoreText}>See All{"\n"}Listings</Text>
-            </TouchableOpacity>
-          </ScrollView>
-        </View>
+        <FeaturedListings title="Homes Available Now" />
 
         {/* ── Highlights ─────────────────────────────────────────────────── */}
         <Section title="Why Dayton is a Great Place to Live">
@@ -438,35 +378,4 @@ const s = StyleSheet.create({
     paddingHorizontal: 28, borderRadius: 10,
   },
   ctaBtnText: { color: Colors.black, fontWeight: "800", fontSize: 14 },
-
-  // ── Featured listings ─────────────────────────────────────────────────────
-  featuredWrap:   { paddingTop: 28 },
-  featuredHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 20, marginBottom: 14 },
-  featuredTitle:  { color: Colors.black, fontSize: 16, fontWeight: "800", borderLeftWidth: 3, borderLeftColor: Colors.gold, paddingLeft: 10 },
-  featuredSeeAll: { flexDirection: "row", alignItems: "center", gap: 4 },
-  featuredSeeAllText: { color: Colors.gold, fontSize: 13, fontWeight: "700" },
-  featuredStrip:  { paddingHorizontal: 20, paddingBottom: 4 },
-  featuredCard: {
-    width: 230, marginRight: 12, backgroundColor: Colors.white,
-    borderRadius: 14, overflow: "hidden", borderWidth: 1, borderColor: Colors.border,
-  },
-  featuredPhoto:  { width: "100%", height: 140 },
-  featuredBadge: {
-    position: "absolute", top: 10, left: 10,
-    backgroundColor: Colors.black, paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6,
-  },
-  featuredBadgeText: { color: Colors.gold, fontSize: 10, fontWeight: "700" },
-  featuredInfo:   { padding: 12 },
-  featuredPrice:  { color: Colors.black, fontSize: 17, fontWeight: "800", marginBottom: 3 },
-  featuredAddr:   { color: Colors.gray, fontSize: 12, marginBottom: 2 },
-  featuredCity:   { color: Colors.grayLight, fontSize: 11, marginBottom: 8 },
-  featuredSpecs:  { flexDirection: "row", alignItems: "center", gap: 6 },
-  featuredSpec:   { color: Colors.gray, fontSize: 12 },
-  featuredSpecDot:{ color: Colors.grayLight, fontSize: 12 },
-  featuredMoreTile: {
-    width: 110, backgroundColor: Colors.black, borderRadius: 14,
-    borderWidth: 1, borderColor: Colors.goldDark,
-    alignItems: "center", justifyContent: "center", gap: 8,
-  },
-  featuredMoreText: { color: Colors.white, fontSize: 12, fontWeight: "700", textAlign: "center", lineHeight: 17 },
 });
