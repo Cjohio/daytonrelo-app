@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import {
-  View, Text, ScrollView, Image, FlatList,
+  View, Text, ScrollView, Image,
   TouchableOpacity, StyleSheet, Linking, Platform,
   ActivityIndicator, Dimensions, Alert, Share,
 } from "react-native";
@@ -27,7 +27,7 @@ export default function ListingDetailScreen() {
   const [loading,    setLoading]    = useState(true);
   const [error,      setError]      = useState<string | null>(null);
   const [photoIndex, setPhotoIndex] = useState(0);
-  const galleryRef = useRef<FlatList>(null);
+  const galleryRef = useRef<ScrollView>(null);
 
   useEffect(() => {
     if (!mlsId) { setError("No listing ID provided."); setLoading(false); return; }
@@ -167,20 +167,20 @@ export default function ListingDetailScreen() {
 
       {/* ── Photo gallery ────────────────────────────────────────────────── */}
       <View style={s.gallery}>
-        <FlatList
+        <ScrollView
           ref={galleryRef}
-          data={photos}
-          keyExtractor={(_, i) => i.toString()}
           horizontal
           pagingEnabled
           showsHorizontalScrollIndicator={false}
+          style={s.galleryScroll}
           onMomentumScrollEnd={(e) =>
             setPhotoIndex(Math.round(e.nativeEvent.contentOffset.x / SCREEN_W))
           }
-          renderItem={({ item }) => (
-            <Image source={{ uri: item }} style={s.photo} resizeMode="cover" />
-          )}
-        />
+        >
+          {photos.map((photo, i) => (
+            <Image key={i} source={{ uri: photo }} style={s.photo} resizeMode="cover" />
+          ))}
+        </ScrollView>
 
         {/* Status badge top-left */}
         <View style={s.statusBadge}>
@@ -227,26 +227,26 @@ export default function ListingDetailScreen() {
 
       {/* ── Thumbnail strip ──────────────────────────────────────────────── */}
       {photos.length > 1 && (
-        <FlatList
-          data={photos.slice(0, 10)}
-          keyExtractor={(_, i) => `thumb-${i}`}
+        <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
           style={s.thumbList}
           contentContainerStyle={s.thumbStrip}
-          renderItem={({ item, index }) => (
+        >
+          {photos.slice(0, 10).map((photo, index) => (
             <TouchableOpacity
+              key={`thumb-${index}`}
               onPress={() => {
                 setPhotoIndex(index);
-                galleryRef.current?.scrollToIndex({ index, animated: true });
+                galleryRef.current?.scrollTo({ x: index * SCREEN_W, animated: true });
               }}
               activeOpacity={0.8}
               style={[s.thumb, index === photoIndex && s.thumbActive]}
             >
-              <Image source={{ uri: item }} style={s.thumbImg} resizeMode="cover" />
+              <Image source={{ uri: photo }} style={s.thumbImg} resizeMode="cover" />
             </TouchableOpacity>
-          )}
-        />
+          ))}
+        </ScrollView>
       )}
 
       {/* ── Scrollable body ──────────────────────────────────────────────── */}
@@ -396,8 +396,9 @@ const s = StyleSheet.create({
   errorBackText: { color: Colors.black, fontWeight: "700", fontSize: 14 },
 
   // Gallery
-  gallery:  { height: 280, position: "relative" },
-  photo:    { width: SCREEN_W, height: 280 },
+  gallery:       { height: 280 },
+  galleryScroll: { width: SCREEN_W, height: 280 },
+  photo:         { width: SCREEN_W, height: 280 },
   statusBadge: {
     position: "absolute", top: 14, left: 14,
     backgroundColor: Colors.black,
@@ -429,7 +430,7 @@ const s = StyleSheet.create({
   dotActive: { width: 18, backgroundColor: Colors.white },
 
   // Thumbnail strip
-  thumbList:  { height: 72, flexShrink: 0 },
+  thumbList:  { height: 72 },
   thumbStrip: { paddingHorizontal: 12, paddingVertical: 8, gap: 6 },
   thumb: {
     width: 64, height: 48, borderRadius: 8, overflow: "hidden",
