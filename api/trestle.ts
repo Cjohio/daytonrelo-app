@@ -8,7 +8,7 @@
 //  Set in .env:
 //    EXPO_PUBLIC_TRESTLE_CLIENT_ID
 //    EXPO_PUBLIC_TRESTLE_CLIENT_SECRET
-//    EXPO_PUBLIC_TRESTLE_BASE_URL   (e.g. https://api.trestle.io)
+//    EXPO_PUBLIC_TRESTLE_BASE_URL   (e.g. https://api-prod.corelogic.com/trestle)
 // ─────────────────────────────────────────────
 
 import { API_CONFIG } from "./config";
