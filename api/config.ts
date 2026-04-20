@@ -42,8 +42,8 @@ export const API_CONFIG = {
     // OAuth2 client credentials — replace placeholders with real values
     clientId:     process.env.EXPO_PUBLIC_TRESTLE_CLIENT_ID     ?? "",
     clientSecret: process.env.EXPO_PUBLIC_TRESTLE_CLIENT_SECRET ?? "",
-    baseURL:      process.env.EXPO_PUBLIC_TRESTLE_BASE_URL       ?? "https://api.trestle.io",
-    tokenURL:     process.env.EXPO_PUBLIC_TRESTLE_TOKEN_URL      ?? "https://api.trestle.io/oauth/token",
+    baseURL:      process.env.EXPO_PUBLIC_TRESTLE_BASE_URL       ?? "https://api-prod.corelogic.com/trestle",
+    tokenURL:     process.env.EXPO_PUBLIC_TRESTLE_TOKEN_URL      ?? "https://api-prod.corelogic.com/trestle/oidc/connect/token",
     defaultCities: ["Dayton", "Beavercreek", "Fairborn", "Kettering", "Centerville", "Miamisburg", "Springboro", "Oakwood"],
   },
 } as const;

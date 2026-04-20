@@ -297,7 +297,7 @@ function reverseMapType(t: ListingType): string {
 async function fetchProperties(query: TrestleQuery): Promise<Listing[]> {
   const params  = buildODataParams(query);
   const headers = await buildHeaders();
-  const url     = `${baseURL}/reso/odata/Property?${params}`;
+  const url     = `${baseURL}/odata/Property?${params}`;
 
   const res = await fetch(url, { headers });
   if (!res.ok) {
@@ -313,7 +313,7 @@ async function fetchProperties(query: TrestleQuery): Promise<Listing[]> {
 async function fetchPropertyById(listingId: string): Promise<Listing> {
   const headers = await buildHeaders();
   const params  = new URLSearchParams({ "$expand": "Media" });
-  const url     = `${baseURL}/reso/odata/Property('${listingId}')?${params}`;
+  const url     = `${baseURL}/odata/Property('${listingId}')?${params}`;
 
   const res = await fetch(url, { headers });
   if (!res.ok) {
@@ -368,7 +368,7 @@ export const trestleApi = {
     );
 
     const headers = await buildHeaders();
-    const url = `${baseURL}/reso/odata/Property?${params}`;
+    const url = `${baseURL}/odata/Property?${params}`;
     const res = await fetch(url, { headers });
     if (!res.ok) throw new Error(`Trestle search error ${res.status}: ${await res.text()}`);
     const json = await res.json() as { value?: any[] };
@@ -407,7 +407,7 @@ export const trestleApi = {
     );
 
     const headers = await buildHeaders();
-    const url = `${baseURL}/reso/odata/Property?${params}`;
+    const url = `${baseURL}/odata/Property?${params}`;
     const res = await fetch(url, { headers });
     if (!res.ok) throw new Error(`Trestle error ${res.status}: ${await res.text()}`);
     const json = await res.json() as { value?: any[] };
