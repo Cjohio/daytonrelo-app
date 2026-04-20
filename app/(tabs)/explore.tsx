@@ -118,15 +118,16 @@ export default function ExploreScreen() {
     }
   }, [params.budget]);
 
-  const fetchListings = async (areaOverride?: string, budgetOverride?: number) => {
-    const activeArea   = areaOverride   ?? area;
+  const fetchListings = async (areaOverride?: string, budgetOverride?: number, modeOverride?: ListingMode) => {
+    const activeArea     = areaOverride   ?? area;
     const activeMaxPrice = budgetOverride ?? maxBudget;
+    const activeMode     = modeOverride   ?? mode;
     setLoading(true);
     setError(null);
     try {
       const cities = activeArea === "All Areas" ? [] : [activeArea];
       const results =
-        mode === "sale"
+        activeMode === "sale"
           ? await trestleApi.getForSale({ cities, keyword: query || undefined, top: 20, maxPrice: activeMaxPrice || undefined })
           : await trestleApi.getRentals({ cities, keyword: query || undefined, top: 20, maxPrice: activeMaxPrice || undefined });
       setListings(results);
@@ -156,7 +157,7 @@ export default function ExploreScreen() {
           <TouchableOpacity
             key={value}
             style={[styles.toggleBtn, mode === value && styles.toggleBtnActive]}
-            onPress={() => setMode(value)}
+            onPress={() => { setMode(value); fetchListings(undefined, undefined, value); }}
           >
             <Text style={[styles.toggleText, mode === value && styles.toggleTextActive]}>
               {label}
@@ -208,7 +209,7 @@ export default function ExploreScreen() {
           <TouchableOpacity
             key={a}
             style={[styles.areaChip, area === a && styles.areaChipActive]}
-            onPress={() => setArea(a)}
+            onPress={() => { setArea(a); fetchListings(a); }}
           >
             <Text style={[styles.areaChipText, area === a && styles.areaChipTextActive]}>
               {a}
