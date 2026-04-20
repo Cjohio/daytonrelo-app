@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import {
-  View, Text, ScrollView, Image,
+  View, Text, ScrollView, Image, Modal, TextInput, KeyboardAvoidingView,
   TouchableOpacity, StyleSheet, Linking, Platform,
   ActivityIndicator, Dimensions, Alert, Share,
 } from "react-native";
@@ -12,11 +12,21 @@ import { trestleApi } from "../api/trestle";
 import { Listing, formatPrice, formatAddress } from "../shared/types/listing";
 import { useAuth } from "../shared/auth/AuthContext";
 import { track } from "../shared/analytics";
+import { API_CONFIG } from "../api/config";
 
 const { width: SCREEN_W } = Dimensions.get("window");
 
 // ─── Chris's real contact info ────────────────────────────────────────────────
 const CHRIS_PHONE = "9372413484";
+
+// ─── Showing time slots (mirrors website) ────────────────────────────────────
+const TIME_SLOTS = [
+  "9:00 AM", "9:30 AM", "10:00 AM", "10:30 AM",
+  "11:00 AM", "11:30 AM", "12:00 PM", "12:30 PM",
+  "1:00 PM",  "1:30 PM",  "2:00 PM",  "2:30 PM",
+  "3:00 PM",  "3:30 PM",  "4:00 PM",  "4:30 PM",
+  "5:00 PM",  "5:30 PM",  "6:00 PM",
+];
 
 // ─── Screen ───────────────────────────────────────────────────────────────────
 export default function ListingDetailScreen() {
@@ -28,6 +38,15 @@ export default function ListingDetailScreen() {
   const [error,      setError]      = useState<string | null>(null);
   const [photoIndex, setPhotoIndex] = useState(0);
   const galleryRef = useRef<ScrollView>(null);
+
+  // ── Showing form modal ───────────────────────────────────────────────────────
+  const [showModal,   setShowModal]   = useState(false);
+  const [formName,    setFormName]    = useState("");
+  const [formPhone,   setFormPhone]   = useState("");
+  const [formDate,    setFormDate]    = useState("");
+  const [formTime,    setFormTime]    = useState("");
+  const [formMessage, setFormMessage] = useState("");
+  const [submitState, setSubmitState] = useState<"idle" | "sending" | "sent" | "error">("idle");
 
   useEffect(() => {
     if (!mlsId) { setError("No listing ID provided."); setLoading(false); return; }
@@ -122,38 +141,47 @@ export default function ListingDetailScreen() {
     }
   }
 
-  function scheduleTour() {
-    const msg = encodeURIComponent(
-      `Hi Chris! I'm interested in scheduling a tour of ${fullAddress}. Is that possible?`
-    );
-    // iOS requires &body=, Android requires ?body=
-    const smsUrl = Platform.OS === "ios"
-      ? `sms:+1${CHRIS_PHONE}&body=${msg}`
-      : `sms:+1${CHRIS_PHONE}?body=${msg}`;
+  function openShowingModal() {
+    setSubmitState("idle");
+    setFormName(""); setFormPhone(""); setFormDate("");
+    setFormTime(""); setFormMessage("");
+    setShowModal(true);
+  }
 
-    Linking.canOpenURL(smsUrl)
-      .then((supported) => {
-        if (supported) return Linking.openURL(smsUrl);
-        // Fallback: show options if SMS isn't available
-        Alert.alert(
-          "Schedule a Tour",
-          `Contact Chris to schedule a tour of ${fullAddress}`,
-          [
-            { text: "Call Chris", onPress: () => Linking.openURL(`tel:+1${CHRIS_PHONE}`) },
-            { text: "Cancel", style: "cancel" },
-          ]
-        );
-      })
-      .catch(() => {
-        Alert.alert(
-          "Schedule a Tour",
-          "Contact Chris at (937) 241-3484 to schedule a tour.",
-          [
-            { text: "Call Now", onPress: () => Linking.openURL(`tel:+1${CHRIS_PHONE}`) },
-            { text: "OK", style: "cancel" },
-          ]
-        );
-      });
+  async function submitShowing() {
+    if (!formName.trim() || !formPhone.trim()) {
+      Alert.alert("Required Fields", "Please enter your name and phone number.");
+      return;
+    }
+    setSubmitState("sending");
+    try {
+      const payload = {
+        name:          formName.trim(),
+        phone:         formPhone.trim(),
+        preferredDate: formDate.trim(),
+        preferredTime: formTime,
+        message:       formMessage.trim(),
+        source:        `showing-${listing?.mlsId ?? "app"}`,
+        property:      fullAddress,
+        listPrice:     listing ? formatPrice(listing.listPrice) : "",
+        submittedAt:   new Date().toISOString(),
+      };
+
+      // Fire to Zapier / Lofty CRM webhook
+      const webhookURL = API_CONFIG.crm.webhookURL;
+      if (webhookURL) {
+        await fetch(webhookURL, {
+          method:  "POST",
+          headers: { "Content-Type": "application/json" },
+          body:    JSON.stringify(payload),
+        });
+      }
+
+      track("showing_requested", { mlsId: listing?.mlsId, listPrice: listing?.listPrice });
+      setSubmitState("sent");
+    } catch {
+      setSubmitState("error");
+    }
   }
 
   function callChris() {
@@ -351,11 +379,147 @@ export default function ListingDetailScreen() {
           <Ionicons name="call-outline" size={20} color={Colors.gold} />
           <Text style={s.callBtnText}>Call</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={s.tourBtn} onPress={scheduleTour} activeOpacity={0.85}>
+        <TouchableOpacity style={s.tourBtn} onPress={openShowingModal} activeOpacity={0.85}>
           <Ionicons name="calendar-outline" size={18} color={Colors.black} />
           <Text style={s.tourBtnText}>Schedule a Tour</Text>
         </TouchableOpacity>
       </View>
+
+      {/* ── Showing request modal ──────────────────────────────────────────── */}
+      <Modal
+        visible={showModal}
+        animationType="slide"
+        transparent
+        onRequestClose={() => setShowModal(false)}
+      >
+        <KeyboardAvoidingView
+          style={s.modalOverlay}
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+        >
+          <TouchableOpacity style={s.modalBackdrop} activeOpacity={1} onPress={() => setShowModal(false)} />
+
+          <View style={s.modalSheet}>
+            {/* Header */}
+            <View style={s.modalHeader}>
+              <View>
+                <Text style={s.modalTitle}>Schedule a Showing</Text>
+                <Text style={s.modalSub} numberOfLines={1}>{fullAddress}</Text>
+              </View>
+              <TouchableOpacity onPress={() => setShowModal(false)} hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}>
+                <Ionicons name="close" size={24} color={Colors.black} />
+              </TouchableOpacity>
+            </View>
+
+            {submitState === "sent" ? (
+              /* ── Success state ── */
+              <View style={s.successWrap}>
+                <View style={s.successIcon}>
+                  <Ionicons name="checkmark" size={32} color={Colors.gold} />
+                </View>
+                <Text style={s.successTitle}>Request Sent!</Text>
+                <Text style={s.successBody}>
+                  Chris will confirm your{formDate ? ` ${formDate}` : ""}{formTime ? ` at ${formTime}` : ""} showing shortly.{"\n"}You can also reach him at (937) 241-3484.
+                </Text>
+                <TouchableOpacity style={s.successBtn} onPress={() => setShowModal(false)}>
+                  <Text style={s.successBtnText}>Done</Text>
+                </TouchableOpacity>
+              </View>
+            ) : (
+              /* ── Form ── */
+              <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+                {/* Name */}
+                <Text style={s.fieldLabel}>Your Name *</Text>
+                <TextInput
+                  style={s.input}
+                  placeholder="First and last name"
+                  placeholderTextColor={Colors.grayLight}
+                  value={formName}
+                  onChangeText={setFormName}
+                  autoCapitalize="words"
+                  returnKeyType="next"
+                />
+
+                {/* Phone */}
+                <Text style={s.fieldLabel}>Phone Number *</Text>
+                <TextInput
+                  style={s.input}
+                  placeholder="(937) 555-0000"
+                  placeholderTextColor={Colors.grayLight}
+                  value={formPhone}
+                  onChangeText={setFormPhone}
+                  keyboardType="phone-pad"
+                  returnKeyType="next"
+                />
+
+                {/* Preferred date */}
+                <Text style={s.fieldLabel}>Preferred Date</Text>
+                <TextInput
+                  style={s.input}
+                  placeholder="MM/DD/YYYY"
+                  placeholderTextColor={Colors.grayLight}
+                  value={formDate}
+                  onChangeText={setFormDate}
+                  keyboardType="numbers-and-punctuation"
+                  returnKeyType="next"
+                />
+
+                {/* Time slot chips */}
+                <Text style={s.fieldLabel}>Preferred Time</Text>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.timeRow}>
+                  {TIME_SLOTS.map((t) => (
+                    <TouchableOpacity
+                      key={t}
+                      style={[s.timeChip, formTime === t && s.timeChipActive]}
+                      onPress={() => setFormTime(formTime === t ? "" : t)}
+                      activeOpacity={0.8}
+                    >
+                      <Text style={[s.timeChipText, formTime === t && s.timeChipTextActive]}>{t}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
+
+                {/* Message */}
+                <Text style={s.fieldLabel}>Message (optional)</Text>
+                <TextInput
+                  style={[s.input, s.inputMulti]}
+                  placeholder="Any questions about the home or anything Chris should know?"
+                  placeholderTextColor={Colors.grayLight}
+                  value={formMessage}
+                  onChangeText={setFormMessage}
+                  multiline
+                  numberOfLines={3}
+                  returnKeyType="done"
+                />
+
+                {/* Submit */}
+                <TouchableOpacity
+                  style={[s.submitBtn, submitState === "sending" && s.submitBtnDisabled]}
+                  onPress={submitShowing}
+                  disabled={submitState === "sending"}
+                  activeOpacity={0.85}
+                >
+                  {submitState === "sending" ? (
+                    <ActivityIndicator size="small" color={Colors.black} />
+                  ) : (
+                    <>
+                      <Ionicons name="calendar-outline" size={18} color={Colors.black} />
+                      <Text style={s.submitBtnText}>Request a Showing</Text>
+                    </>
+                  )}
+                </TouchableOpacity>
+
+                {submitState === "error" && (
+                  <Text style={s.errorMsg}>
+                    Something went wrong. Please call or text Chris at (937) 241-3484.
+                  </Text>
+                )}
+
+                <View style={{ height: 32 }} />
+              </ScrollView>
+            )}
+          </View>
+        </KeyboardAvoidingView>
+      </Modal>
     </View>
   );
 }
@@ -501,6 +665,73 @@ const s = StyleSheet.create({
   chrisName:  { color: Colors.white, fontWeight: "800", fontSize: 15 },
   chrisSub:   { color: Colors.gray, fontSize: 12, marginTop: 2 },
   chrisBody:  { color: Colors.grayLight, fontSize: 13, lineHeight: 19 },
+
+  // Showing modal
+  modalOverlay: { flex: 1, justifyContent: "flex-end" },
+  modalBackdrop: { ...StyleSheet.absoluteFillObject, backgroundColor: "rgba(0,0,0,0.45)" },
+  modalSheet: {
+    backgroundColor: Colors.white, borderTopLeftRadius: 24, borderTopRightRadius: 24,
+    paddingHorizontal: 20, paddingTop: 20, paddingBottom: 8,
+    maxHeight: "88%",
+    shadowColor: "#000", shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.12, shadowRadius: 16, elevation: 20,
+  },
+  modalHeader: {
+    flexDirection: "row", alignItems: "flex-start",
+    justifyContent: "space-between", marginBottom: 20,
+  },
+  modalTitle: { fontSize: 18, fontWeight: "800", color: Colors.black },
+  modalSub:   { fontSize: 12, color: Colors.gray, marginTop: 2, maxWidth: SCREEN_W - 100 },
+
+  // Form fields
+  fieldLabel: {
+    fontSize: 11, fontWeight: "700", color: Colors.gray,
+    textTransform: "uppercase", letterSpacing: 0.8, marginBottom: 6, marginTop: 14,
+  },
+  input: {
+    backgroundColor: Colors.offWhite ?? "#F8F8F6",
+    borderWidth: 1, borderColor: Colors.border,
+    borderRadius: 10, paddingHorizontal: 14, paddingVertical: 12,
+    fontSize: 14, color: Colors.black,
+  },
+  inputMulti: { height: 80, textAlignVertical: "top", paddingTop: 12 },
+
+  // Time chips
+  timeRow:         { paddingVertical: 2, gap: 8 },
+  timeChip: {
+    paddingHorizontal: 14, paddingVertical: 8,
+    borderRadius: 20, borderWidth: 1, borderColor: Colors.border,
+    backgroundColor: Colors.offWhite ?? "#F8F8F6",
+  },
+  timeChipActive:  { backgroundColor: Colors.gold, borderColor: Colors.gold },
+  timeChipText:    { fontSize: 13, color: Colors.gray,  fontWeight: "600" },
+  timeChipTextActive: { color: Colors.black, fontWeight: "700" },
+
+  // Submit button
+  submitBtn: {
+    flexDirection: "row", alignItems: "center", justifyContent: "center",
+    gap: 8, backgroundColor: Colors.gold, borderRadius: 12,
+    height: 52, marginTop: 20,
+  },
+  submitBtnDisabled: { opacity: 0.6 },
+  submitBtnText: { fontSize: 16, fontWeight: "800", color: Colors.black },
+  errorMsg: { fontSize: 13, color: "#E53935", textAlign: "center", marginTop: 12, lineHeight: 19 },
+
+  // Success
+  successWrap: { alignItems: "center", paddingVertical: 32, paddingHorizontal: 16 },
+  successIcon: {
+    width: 68, height: 68, borderRadius: 34,
+    backgroundColor: Colors.gold + "22",
+    borderWidth: 2, borderColor: Colors.gold,
+    alignItems: "center", justifyContent: "center", marginBottom: 16,
+  },
+  successTitle: { fontSize: 20, fontWeight: "800", color: Colors.black, marginBottom: 8 },
+  successBody:  { fontSize: 14, color: Colors.gray, textAlign: "center", lineHeight: 21, marginBottom: 24 },
+  successBtn: {
+    backgroundColor: Colors.gold, borderRadius: 12,
+    paddingHorizontal: 40, paddingVertical: 14,
+  },
+  successBtnText: { fontSize: 15, fontWeight: "800", color: Colors.black },
 
   // Sticky CTA
   ctaBar: {
