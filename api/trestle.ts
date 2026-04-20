@@ -149,7 +149,10 @@ function mapProperty(r: any): Listing {
   };
 
   const photos: string[] = Array.isArray(r.Media)
-    ? r.Media.filter((m: any) => m.MediaURL).map((m: any) => m.MediaURL as string)
+    ? ([...r.Media] as any[])
+        .sort((a, b) => (a.Order ?? 0) - (b.Order ?? 0))
+        .filter((m: any) => m.MediaURL)
+        .map((m: any) => m.MediaURL as string)
     : r.PhotosCount > 0 && r.ListingId
     ? [] // photos not expanded — leave empty; caller can expand separately
     : [];

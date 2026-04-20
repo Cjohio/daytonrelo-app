@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   View, Text, ScrollView, Image, FlatList,
   TouchableOpacity, StyleSheet, Linking, Platform,
@@ -27,6 +27,7 @@ export default function ListingDetailScreen() {
   const [loading,    setLoading]    = useState(true);
   const [error,      setError]      = useState<string | null>(null);
   const [photoIndex, setPhotoIndex] = useState(0);
+  const galleryRef = useRef<FlatList>(null);
 
   useEffect(() => {
     if (!mlsId) { setError("No listing ID provided."); setLoading(false); return; }
@@ -71,6 +72,7 @@ export default function ListingDetailScreen() {
   const photos = listing.photos?.length > 0
     ? listing.photos
     : ["https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=800&q=80"];
+  const THUMB_SIZE = 64;
 
   const beds      = listing.property.bedrooms;
   const baths     = listing.property.bathsFull + listing.property.bathsHalf * 0.5;
@@ -166,6 +168,7 @@ export default function ListingDetailScreen() {
       {/* ── Photo gallery ────────────────────────────────────────────────── */}
       <View style={s.gallery}>
         <FlatList
+          ref={galleryRef}
           data={photos}
           keyExtractor={(_, i) => i.toString()}
           horizontal
@@ -221,6 +224,29 @@ export default function ListingDetailScreen() {
           </View>
         )}
       </View>
+
+      {/* ── Thumbnail strip ──────────────────────────────────────────────── */}
+      {photos.length > 1 && (
+        <FlatList
+          data={photos.slice(0, 10)}
+          keyExtractor={(_, i) => `thumb-${i}`}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={s.thumbStrip}
+          renderItem={({ item, index }) => (
+            <TouchableOpacity
+              onPress={() => {
+                setPhotoIndex(index);
+                galleryRef.current?.scrollToIndex({ index, animated: true });
+              }}
+              activeOpacity={0.8}
+              style={[s.thumb, index === photoIndex && s.thumbActive]}
+            >
+              <Image source={{ uri: item }} style={s.thumbImg} resizeMode="cover" />
+            </TouchableOpacity>
+          )}
+        />
+      )}
 
       {/* ── Scrollable body ──────────────────────────────────────────────── */}
       <ScrollView
@@ -400,6 +426,15 @@ const s = StyleSheet.create({
   },
   dot:       { width: 6, height: 6, borderRadius: 3, backgroundColor: "rgba(255,255,255,0.45)" },
   dotActive: { width: 18, backgroundColor: Colors.white },
+
+  // Thumbnail strip
+  thumbStrip: { paddingHorizontal: 12, paddingVertical: 8, gap: 6 },
+  thumb: {
+    width: 64, height: 48, borderRadius: 8, overflow: "hidden",
+    borderWidth: 2, borderColor: "transparent",
+  },
+  thumbActive: { borderColor: Colors.gold },
+  thumbImg:    { width: 64, height: 48 },
 
   // Body
   scroll:   { flex: 1 },
