@@ -49,6 +49,8 @@ async function getAccessToken(): Promise<string> {
     scope:         "api",
   });
 
+  console.log("[Trestle] Fetching token from:", tokenURL);
+  console.log("[Trestle] clientId present:", !!clientId, "| clientSecret present:", !!clientSecret);
   const res = await fetch(tokenURL, {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -57,6 +59,7 @@ async function getAccessToken(): Promise<string> {
 
   if (!res.ok) {
     const text = await res.text();
+    console.error("[Trestle] Token fetch failed:", res.status, text);
     throw new Error(`Trestle token error ${res.status}: ${text}`);
   }
 
@@ -275,8 +278,7 @@ function buildODataParams(query: TrestleQuery): URLSearchParams {
     "ListAgentMlsId", "ListAgentKey", "ListAgentFirstName",
     "ListAgentLastName", "ListAgentEmail", "ListAgentDirectPhone",
     "ListAgentMobilePhone", "ListOfficeMlsId", "ListOfficeKey",
-    "ListOfficeName", "SchoolDistrict", "ElementarySchool",
-    "MiddleOrJuniorSchool", "HighSchool",
+    "ListOfficeName",
     "VirtualTourURLUnbranded", "VirtualTourURLBranded",
   ].join(","));
 

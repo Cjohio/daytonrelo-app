@@ -132,6 +132,7 @@ export default function ExploreScreen() {
       setListings(results);
       setSearched(true);
     } catch (e: any) {
+      console.error("[Trestle] fetchListings error:", e?.message ?? e);
       setError("We couldn't load listings right now. Please try again in a moment, or contact Chris if the issue continues.");
       setListings([]);
     } finally {

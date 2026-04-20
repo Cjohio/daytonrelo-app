@@ -41,7 +41,7 @@ export default function ListingDetailScreen() {
           baths:     data?.property?.bathsFull ?? null,
         });
       })
-      .catch(() => setError("Could not load this listing. Check your SimplyRETS credentials."))
+      .catch(() => setError("Could not load this listing. It may have been removed from the MLS."))
       .finally(() => setLoading(false));
   }, [mlsId]);
 

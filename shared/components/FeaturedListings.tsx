@@ -5,7 +5,7 @@ import {
 } from "react-native";
 import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { simplyRetsApi } from "../../api/simplyrets";
+import { trestleApi } from "../../api/trestle";
 import { Listing } from "../types/listing";
 import ListingCard from "./ListingCard";
 import { Colors } from "../theme/colors";
@@ -27,8 +27,8 @@ export default function FeaturedListings({
     (async () => {
       try {
         const data = nearWPAFB
-          ? await simplyRetsApi.getNearWPAFB({ limit: 4 })
-          : await simplyRetsApi.getFeatured(4);
+          ? await trestleApi.getNearWPAFB({ top: 4 })
+          : await trestleApi.getFeatured(4);
         setListings(data.slice(0, 4));
       } catch (e) {
         // API unavailable — fallback CTA will render

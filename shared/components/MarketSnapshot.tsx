@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, Animated, Easing } from "reac
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { Colors } from "../theme/colors";
-import { simplyRetsApi } from "../../api/simplyrets";
+import { trestleApi } from "../../api/trestle";
 import { Listing, formatPrice } from "../types/listing";
 
 // ─── helpers ────────────────────────────────────────────────────────────────
@@ -70,7 +70,7 @@ export default function MarketSnapshot() {
   useEffect(() => {
     (async () => {
       try {
-        const listings: Listing[] = await simplyRetsApi.getForSale({ limit: 50 });
+        const listings: Listing[] = await trestleApi.getForSale({ top: 50 });
         if (listings.length === 0) throw new Error("empty");
 
         const prices = listings.map((l) => l.listPrice);

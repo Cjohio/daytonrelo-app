@@ -1,12 +1,9 @@
 /**
  * Open Houses Calendar
  *
- * Pulls active residential listings from Trestle (RESO Web API) and surfaces
- * any that have openHouses data. Falls back to showing upcoming weekend listings
- * when no open house records are returned.
- *
- * TODO (production): Trestle supports the OpenHouse RESO resource. Can replace
- * getForSale() with a direct fetch to /reso/odata/OpenHouse for richer data.
+ * Pulls active residential listings from Trestle (RESO Web API).
+ * Trestle supports the OpenHouse RESO resource at /odata/OpenHouse
+ * for richer data — currently fetching from Property resource.
  */
 import { useState, useEffect } from "react";
 import {
@@ -43,23 +40,11 @@ function nextWeekendDates(): { sat: string; sun: string } {
   return { sat: fmt(sat), sun: fmt(sun) };
 }
 
-// ─── Fake open house window generator (sandbox only) ─────────────────────────
-// The SimplyRETS sandbox rarely returns openHouses data, so we generate
-// display-only windows from the listing's list date for a realistic preview.
-function fakeWindow(listing: Listing): { day: string; time: string } {
-  // mlsId is a string — derive a small stable integer for selection
-  const seed   = (parseInt(listing.mlsId.replace(/\D/g, ""), 10) || 0) % 3;
-  const days   = ["Saturday", "Sunday", "Saturday"];
-  const times  = ["1:00 – 3:00 PM", "11:00 AM – 1:00 PM", "2:00 – 4:00 PM"];
-  return { day: days[seed], time: times[seed] };
-}
-
 const fmt$ = (n: number) =>
   new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(n);
 
 // ─── Open House Card ──────────────────────────────────────────────────────────
 function OpenHouseCard({ listing }: { listing: Listing }) {
-  const win = fakeWindow(listing);
   const addr = listing.address
     ? `${listing.address.streetNumber ?? ""} ${listing.address.streetName ?? ""}, ${listing.address.city ?? ""}`
     : "Address on file";
@@ -72,7 +57,7 @@ function OpenHouseCard({ listing }: { listing: Listing }) {
     >
       {/* Day badge */}
       <View style={c.dayBadge}>
-        <Text style={c.dayText}>{win.day.slice(0, 3).toUpperCase()}</Text>
+        <Text style={c.dayText}>NEW</Text>
       </View>
 
       <View style={c.body}>
@@ -102,10 +87,14 @@ function OpenHouseCard({ listing }: { listing: Listing }) {
           )}
         </View>
 
-        {/* Time window */}
+        {/* List date */}
         <View style={c.timeRow}>
-          <Ionicons name="time-outline" size={13} color={Colors.gold} />
-          <Text style={c.timeText}>{win.day}  ·  {win.time}</Text>
+          <Ionicons name="calendar-outline" size={13} color={Colors.gold} />
+          <Text style={c.timeText}>
+            {listing.listDate
+              ? `Listed ${new Date(listing.listDate).toLocaleDateString("en-US", { month: "short", day: "numeric" })}`
+              : "Contact Chris to schedule a showing"}
+          </Text>
         </View>
       </View>
 
@@ -171,14 +160,6 @@ export default function OpenHousesScreen() {
           </TouchableOpacity>
         ))}
       </ScrollView>
-
-      {/* Sandbox notice */}
-      <View style={s.notice}>
-        <Ionicons name="information-circle-outline" size={14} color="#60A5FA" />
-        <Text style={s.noticeText}>
-          Open house times shown are illustrative — sandbox data. In production, live MLS open house windows will appear here.
-        </Text>
-      </View>
 
       {/* List */}
       <ScrollView style={s.scroll} contentContainerStyle={s.content}>
