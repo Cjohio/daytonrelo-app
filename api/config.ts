@@ -44,6 +44,11 @@ export const API_CONFIG = {
     clientSecret: process.env.EXPO_PUBLIC_TRESTLE_CLIENT_SECRET ?? "",
     baseURL:      process.env.EXPO_PUBLIC_TRESTLE_BASE_URL       ?? "https://api-prod.corelogic.com/trestle",
     tokenURL:     process.env.EXPO_PUBLIC_TRESTLE_TOKEN_URL      ?? "https://api-prod.corelogic.com/trestle/oidc/connect/token",
-    defaultCities: ["Dayton", "Beavercreek", "Fairborn", "Kettering", "Centerville", "Miamisburg", "Springboro", "Oakwood"],
+    defaultCities: [
+      "Dayton", "Beavercreek", "Fairborn", "Kettering",
+      "Centerville", "Miamisburg", "Springboro", "Oakwood",
+      "Huber Heights", "Trotwood", "Vandalia", "Englewood",
+      "Xenia", "Yellow Springs", "Bellbrook", "Sugarcreek Township",
+    ],
   },
 } as const;

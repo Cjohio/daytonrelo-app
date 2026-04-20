@@ -162,7 +162,7 @@ function mapProperty(r: any): Listing {
 
   return {
     listingId:             r.ListingId  ?? r.ListingKey ?? "",
-    mlsId:                 r.ListingId  ?? r.ListingKey ?? "",
+    mlsId:                 r.ListingKey ?? r.ListingId  ?? "", // ListingKey is the OData primary key
     listPrice:             r.ListPrice  ?? 0,
     listDate:              r.OnMarketDate ?? r.ListingContractDate ?? "",
     modificationTimestamp: r.ModificationTimestamp ?? "",
@@ -267,7 +267,7 @@ function buildODataParams(query: TrestleQuery): URLSearchParams {
   p.set("$filter",  filters.join(" and "));
   p.set("$top",     String(query.top ?? 20));
   if (query.skip)    p.set("$skip",    String(query.skip));
-  p.set("$orderby", query.orderBy ?? "OnMarketDate desc");
+  p.set("$orderby", query.orderBy ?? "ModificationTimestamp desc");
   p.set("$expand",  query.expand  ?? "Media");
   p.set("$select", [
     "ListingId", "ListingKey", "ListPrice", "OnMarketDate",
