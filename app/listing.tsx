@@ -232,6 +232,7 @@ export default function ListingDetailScreen() {
           keyExtractor={(_, i) => `thumb-${i}`}
           horizontal
           showsHorizontalScrollIndicator={false}
+          style={s.thumbList}
           contentContainerStyle={s.thumbStrip}
           renderItem={({ item, index }) => (
             <TouchableOpacity
@@ -428,6 +429,7 @@ const s = StyleSheet.create({
   dotActive: { width: 18, backgroundColor: Colors.white },
 
   // Thumbnail strip
+  thumbList:  { height: 72, flexShrink: 0 },
   thumbStrip: { paddingHorizontal: 12, paddingVertical: 8, gap: 6 },
   thumb: {
     width: 64, height: 48, borderRadius: 8, overflow: "hidden",
