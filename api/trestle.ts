@@ -193,7 +193,7 @@ function mapStatus(s: string | undefined): ListingStatus {
 function mapType(t: string | undefined): ListingType {
   switch (t) {
     case "Residential":       return "residential";
-    case "Residential Lease": return "rental";
+    case "ResidentialLease": return "rental";
     case "Land":              return "land";
     case "Commercial Sale":
     case "Commercial Lease":  return "commercial";
@@ -291,7 +291,7 @@ function buildODataParams(query: TrestleQuery): URLSearchParams {
 function reverseMapType(t: ListingType): string {
   switch (t) {
     case "residential": return "Residential";
-    case "rental":      return "Residential Lease";
+    case "rental":      return "ResidentialLease";
     case "land":        return "Land";
     case "commercial":  return "Commercial Sale";
   }
