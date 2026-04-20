@@ -1,13 +1,12 @@
 /**
  * Open Houses Calendar
  *
- * Pulls active residential listings from SimplyRETS and surfaces any that have
- * openHouses data. Falls back to showing upcoming weekend listings when the
- * sandbox API returns no open house records.
+ * Pulls active residential listings from Trestle (RESO Web API) and surfaces
+ * any that have openHouses data. Falls back to showing upcoming weekend listings
+ * when no open house records are returned.
  *
- * TODO (production): SimplyRETS /openhouses endpoint returns dedicated open
- * house records. Replace getForSale() with a direct fetch to:
- *   GET https://api.simplyrets.com/openhouses?limit=20&cities=Beavercreek,...
+ * TODO (production): Trestle supports the OpenHouse RESO resource. Can replace
+ * getForSale() with a direct fetch to /reso/odata/OpenHouse for richer data.
  */
 import { useState, useEffect } from "react";
 import {
@@ -21,7 +20,7 @@ import BrandHeader, { BackBtn } from "../shared/components/BrandHeader";
 import { Colors } from "../shared/theme/colors";
 import AppTabBar from "../shared/components/AppTabBar";
 import ChatFAB from "../shared/components/ChatFAB";
-import { simplyRetsApi } from "../api/simplyrets";
+import { trestleApi } from "../api/trestle";
 import { Listing } from "../shared/types/listing";
 import { ListingCardSkeleton } from "../shared/components/SkeletonLoader";
 
@@ -132,10 +131,10 @@ export default function OpenHousesScreen() {
     setError(null);
     try {
       const cities = area === "All Areas" ? undefined : [area];
-      const results = await simplyRetsApi.getForSale({ cities, limit: 20, sort: "-listdate" });
+      const results = await trestleApi.getForSale({ cities: cities ?? [], top: 20, orderBy: "OnMarketDate desc" });
       setListings(results);
     } catch {
-      setError("Could not load open house listings. Check your SimplyRETS credentials or try again.");
+      setError("Could not load open house listings. Check your Trestle credentials or try again.");
     } finally {
       setLoading(false);
     }

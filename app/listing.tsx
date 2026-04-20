@@ -8,7 +8,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, router } from "expo-router";
 import BrandHeader, { BackBtn } from "../shared/components/BrandHeader";
 import { Colors } from "../shared/theme/colors";
-import { simplyRetsApi } from "../api/simplyrets";
+import { trestleApi } from "../api/trestle";
 import { Listing, formatPrice, formatAddress } from "../shared/types/listing";
 import { useAuth } from "../shared/auth/AuthContext";
 import { track } from "../shared/analytics";
@@ -30,7 +30,7 @@ export default function ListingDetailScreen() {
 
   useEffect(() => {
     if (!mlsId) { setError("No listing ID provided."); setLoading(false); return; }
-    simplyRetsApi.getListing(mlsId)
+    trestleApi.getListing(mlsId)
       .then((data) => {
         setListing(data);
         track("listing_viewed", {

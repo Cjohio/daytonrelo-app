@@ -9,7 +9,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, router } from "expo-router";
 import { Colors } from "../../shared/theme/colors";
 import { getPersona } from "../../shared/persona";
-import { simplyRetsApi } from "../../api/simplyrets";
+import { trestleApi } from "../../api/trestle";
 import { Listing } from "../../shared/types/listing";
 import ListingCard from "../../shared/components/ListingCard";
 import { ListingCardSkeleton } from "../../shared/components/SkeletonLoader";
@@ -122,8 +122,8 @@ export default function ExploreScreen() {
       const cities = activeArea === "All Areas" ? [] : [activeArea];
       const results =
         mode === "sale"
-          ? await simplyRetsApi.getForSale({ cities, q: query || undefined, limit: 20, maxprice: activeMaxPrice })
-          : await simplyRetsApi.getRentals({ cities, q: query || undefined, limit: 20, maxprice: activeMaxPrice });
+          ? await trestleApi.getForSale({ cities, keyword: query || undefined, top: 20, maxPrice: activeMaxPrice || undefined })
+          : await trestleApi.getRentals({ cities, keyword: query || undefined, top: 20, maxPrice: activeMaxPrice || undefined });
       setListings(results);
       setSearched(true);
     } catch (e: any) {
