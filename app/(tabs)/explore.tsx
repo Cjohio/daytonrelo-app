@@ -56,6 +56,11 @@ export default function ExploreScreen() {
     });
   }, []);
 
+  // Auto-load listings on mount (show all Dayton-area active listings by default)
+  useEffect(() => {
+    fetchListings("All Areas", undefined);
+  }, []);
+
   function buildLabel(a: string, m: ListingMode, b?: number, q?: string) {
     return [
       m === "sale" ? "For Sale" : "For Rent",
@@ -269,7 +274,7 @@ export default function ExploreScreen() {
               <Text style={styles.emptyTitle}>Search Dayton MLS</Text>
               <Text style={styles.emptyBody}>
                 Choose an area and hit Search to browse live IDX listings.{"\n"}
-                SimplyRETS sandbox data loads by default.
+                Powered by Trestle MLS (Dayton metro).
               </Text>
             </View>
           </>
