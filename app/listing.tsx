@@ -193,184 +193,187 @@ export default function ListingDetailScreen() {
     <View style={s.container}>
       <BrandHeader left={<BackBtn onPress={() => router.back()} />} />
 
-      {/* ── Photo gallery ────────────────────────────────────────────────── */}
-      <View style={s.gallery}>
-        <ScrollView
-          ref={galleryRef}
-          horizontal
-          pagingEnabled
-          showsHorizontalScrollIndicator={false}
-          style={s.galleryScroll}
-          onMomentumScrollEnd={(e) =>
-            setPhotoIndex(Math.round(e.nativeEvent.contentOffset.x / SCREEN_W))
-          }
-        >
-          {photos.map((photo, i) => (
-            <Image key={i} source={{ uri: photo }} style={s.photo} resizeMode="cover" />
-          ))}
-        </ScrollView>
-
-        {/* Status badge top-left */}
-        <View style={s.statusBadge}>
-          <Text style={s.statusBadgeText}>{listing.status}</Text>
-        </View>
-
-        {/* Photo counter top-right */}
-        <View style={s.photoCounter}>
-          <Ionicons name="images-outline" size={12} color={Colors.white} />
-          <Text style={s.photoCounterText}>{photoIndex + 1} / {photos.length}</Text>
-        </View>
-
-        {/* Share + Heart bottom-right */}
-        <View style={s.photoActions}>
-          <TouchableOpacity
-            style={s.heartBtn}
-            onPress={handleShare}
-            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-          >
-            <Ionicons name="share-outline" size={20} color={Colors.white} />
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[s.heartBtn, saved && s.heartBtnSaved]}
-            onPress={handleSave}
-            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-          >
-            <Ionicons
-              name={saved ? "heart" : "heart-outline"}
-              size={20}
-              color={saved ? "#E53935" : Colors.white}
-            />
-          </TouchableOpacity>
-        </View>
-
-        {/* Dot indicators */}
-        {photos.length > 1 && (
-          <View style={s.dots}>
-            {photos.slice(0, 9).map((_, i) => (
-              <View key={i} style={[s.dot, i === photoIndex && s.dotActive]} />
-            ))}
-          </View>
-        )}
-      </View>
-
-      {/* ── Thumbnail strip ──────────────────────────────────────────────── */}
-      {photos.length > 1 && (
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          style={s.thumbList}
-          contentContainerStyle={s.thumbStrip}
-        >
-          {photos.slice(0, 10).map((photo, index) => (
-            <TouchableOpacity
-              key={`thumb-${index}`}
-              onPress={() => {
-                setPhotoIndex(index);
-                galleryRef.current?.scrollTo({ x: index * SCREEN_W, animated: true });
-              }}
-              activeOpacity={0.8}
-              style={[s.thumb, index === photoIndex && s.thumbActive]}
-            >
-              <Image source={{ uri: photo }} style={s.thumbImg} resizeMode="cover" />
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
-      )}
-
-      {/* ── Scrollable body ──────────────────────────────────────────────── */}
+      {/* ── Single outer scroll — gallery + thumbnails + content all inside ── */}
       <ScrollView
         style={s.scroll}
-        contentContainerStyle={s.content}
         showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
       >
-        {/* Price + days on market */}
-        <View style={s.priceRow}>
-          <Text style={s.price}>{formatPrice(listing.listPrice)}</Text>
-          <View style={[s.domBadge, daysOnMarket <= 7 && s.domBadgeNew]}>
-            <Ionicons
-              name="time-outline"
-              size={12}
-              color={daysOnMarket <= 7 ? "#166534" : Colors.gray}
-            />
-            <Text style={[s.domText, daysOnMarket <= 7 && s.domTextNew]}>
-              {daysOnMarket === 0 ? "Listed today" : `${daysOnMarket}d on market`}
-            </Text>
+        {/* Photo gallery */}
+        <View style={s.gallery}>
+          <ScrollView
+            ref={galleryRef}
+            horizontal
+            pagingEnabled
+            showsHorizontalScrollIndicator={false}
+            style={s.galleryScroll}
+            onMomentumScrollEnd={(e) =>
+              setPhotoIndex(Math.round(e.nativeEvent.contentOffset.x / SCREEN_W))
+            }
+          >
+            {photos.map((photo, i) => (
+              <Image key={i} source={{ uri: photo }} style={s.photo} resizeMode="cover" />
+            ))}
+          </ScrollView>
+
+          {/* Status badge */}
+          <View style={s.statusBadge}>
+            <Text style={s.statusBadgeText}>{listing.status}</Text>
           </View>
-        </View>
 
-        {/* Address */}
-        <Text style={s.address}>{fullAddress}</Text>
-
-        {/* Stats bar */}
-        <View style={s.statsBar}>
-          <StatPill icon="bed-outline"      value={`${beds}`}  label="Beds"  />
-          <View style={s.statDivider} />
-          <StatPill icon="water-outline"    value={`${baths}`} label="Baths" />
-          <View style={s.statDivider} />
-          <StatPill icon="resize-outline"   value={sqft}       label="Sq Ft" />
-          {yearBuilt ? (
-            <>
-              <View style={s.statDivider} />
-              <StatPill icon="calendar-outline" value={`${yearBuilt}`} label="Built" />
-            </>
-          ) : null}
-        </View>
-
-        {/* Description */}
-        {listing.remarks ? (
-          <View style={s.section}>
-            <Text style={s.sectionTitle}>About This Home</Text>
-            <Text style={s.remarks}>{listing.remarks}</Text>
+          {/* Photo counter */}
+          <View style={s.photoCounter}>
+            <Ionicons name="images-outline" size={12} color={Colors.white} />
+            <Text style={s.photoCounterText}>{photoIndex + 1} / {photos.length}</Text>
           </View>
-        ) : null}
 
-        {/* Property details */}
-        <View style={s.section}>
-          <Text style={s.sectionTitle}>Property Details</Text>
-          <DetailRow label="Type"     value={listing.property.type}   />
-          {listing.property.style       ? <DetailRow label="Style"    value={listing.property.style} /> : null}
-          {listing.property.garageSpaces ? <DetailRow label="Garage"  value={`${listing.property.garageSpaces} spaces`} /> : null}
-          {listing.property.lotSize      ? <DetailRow label="Lot Size" value={`${listing.property.lotSize.toLocaleString()} sq ft`} /> : null}
-          <DetailRow label="MLS #"    value={`#${listing.mlsId}`}     />
-        </View>
-
-        {/* Schools */}
-        {listing.schools && Object.values(listing.schools).some(Boolean) ? (
-          <View style={s.section}>
-            <Text style={s.sectionTitle}>Schools</Text>
-            {listing.schools.district   ? <DetailRow label="District"    value={listing.schools.district} /> : null}
-            {listing.schools.elementary ? <DetailRow label="Elementary"  value={listing.schools.elementary} /> : null}
-            {listing.schools.middle     ? <DetailRow label="Middle"      value={listing.schools.middle} /> : null}
-            {listing.schools.high       ? <DetailRow label="High School" value={listing.schools.high} /> : null}
+          {/* Share + Heart */}
+          <View style={s.photoActions}>
+            <TouchableOpacity
+              style={s.heartBtn}
+              onPress={handleShare}
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            >
+              <Ionicons name="share-outline" size={20} color={Colors.white} />
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[s.heartBtn, saved && s.heartBtnSaved]}
+              onPress={handleSave}
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            >
+              <Ionicons
+                name={saved ? "heart" : "heart-outline"}
+                size={20}
+                color={saved ? "#E53935" : Colors.white}
+              />
+            </TouchableOpacity>
           </View>
-        ) : null}
 
-        {/* Listed by */}
-        <View style={s.section}>
-          <Text style={s.sectionTitle}>Listed By</Text>
-          <Text style={s.agentName}>
-            {listing.listAgent.firstName} {listing.listAgent.lastName}
-          </Text>
-          {listing.listOffice?.name
-            ? <Text style={s.agentOffice}>{listing.listOffice.name}</Text>
-            : null}
+          {/* Dot indicators */}
+          {photos.length > 1 && (
+            <View style={s.dots}>
+              {photos.slice(0, 9).map((_, i) => (
+                <View key={i} style={[s.dot, i === photoIndex && s.dotActive]} />
+              ))}
+            </View>
+          )}
         </View>
 
-        {/* Chris CTA card */}
-        <View style={s.chrisCard}>
-          <View style={s.chrisCardLeft}>
-            <Ionicons name="person-circle" size={36} color={Colors.gold} />
-            <View>
-              <Text style={s.chrisName}>Chris Jurgens</Text>
-              <Text style={s.chrisSub}>Dayton Relocation Specialist</Text>
+        {/* Thumbnail strip */}
+        {photos.length > 1 && (
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            style={s.thumbList}
+            contentContainerStyle={s.thumbStrip}
+          >
+            {photos.slice(0, 10).map((photo, index) => (
+              <TouchableOpacity
+                key={`thumb-${index}`}
+                onPress={() => {
+                  setPhotoIndex(index);
+                  galleryRef.current?.scrollTo({ x: index * SCREEN_W, animated: true });
+                }}
+                activeOpacity={0.8}
+                style={[s.thumb, index === photoIndex && s.thumbActive]}
+              >
+                <Image source={{ uri: photo }} style={s.thumbImg} resizeMode="cover" />
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+        )}
+
+        {/* ── Content ────────────────────────────────────────────────────── */}
+        <View style={s.content}>
+          {/* Price + days on market */}
+          <View style={s.priceRow}>
+            <Text style={s.price}>{formatPrice(listing.listPrice)}</Text>
+            <View style={[s.domBadge, daysOnMarket <= 7 && s.domBadgeNew]}>
+              <Ionicons
+                name="time-outline"
+                size={12}
+                color={daysOnMarket <= 7 ? "#166534" : Colors.gray}
+              />
+              <Text style={[s.domText, daysOnMarket <= 7 && s.domTextNew]}>
+                {daysOnMarket === 0 ? "Listed today" : `${daysOnMarket}d on market`}
+              </Text>
             </View>
           </View>
-          <Text style={s.chrisBody}>
-            Have questions about this home or the neighborhood? Chris is your local expert.
-          </Text>
-        </View>
 
-        <View style={{ height: 110 }} />
+          {/* Address */}
+          <Text style={s.address}>{fullAddress}</Text>
+
+          {/* Stats bar */}
+          <View style={s.statsBar}>
+            <StatPill icon="bed-outline"      value={`${beds}`}  label="Beds"  />
+            <View style={s.statDivider} />
+            <StatPill icon="water-outline"    value={`${baths}`} label="Baths" />
+            <View style={s.statDivider} />
+            <StatPill icon="resize-outline"   value={sqft}       label="Sq Ft" />
+            {yearBuilt ? (
+              <>
+                <View style={s.statDivider} />
+                <StatPill icon="calendar-outline" value={`${yearBuilt}`} label="Built" />
+              </>
+            ) : null}
+          </View>
+
+          {/* Description */}
+          {listing.remarks ? (
+            <View style={s.section}>
+              <Text style={s.sectionTitle}>About This Home</Text>
+              <Text style={s.remarks}>{listing.remarks}</Text>
+            </View>
+          ) : null}
+
+          {/* Property details */}
+          <View style={s.section}>
+            <Text style={s.sectionTitle}>Property Details</Text>
+            <DetailRow label="Type"     value={listing.property.type}   />
+            {listing.property.style        ? <DetailRow label="Style"    value={listing.property.style} /> : null}
+            {listing.property.garageSpaces ? <DetailRow label="Garage"   value={`${listing.property.garageSpaces} spaces`} /> : null}
+            {listing.property.lotSize      ? <DetailRow label="Lot Size" value={`${listing.property.lotSize.toLocaleString()} sq ft`} /> : null}
+            <DetailRow label="MLS #"    value={`#${listing.mlsId}`}     />
+          </View>
+
+          {/* Schools */}
+          {listing.schools && Object.values(listing.schools).some(Boolean) ? (
+            <View style={s.section}>
+              <Text style={s.sectionTitle}>Schools</Text>
+              {listing.schools.district   ? <DetailRow label="District"    value={listing.schools.district} /> : null}
+              {listing.schools.elementary ? <DetailRow label="Elementary"  value={listing.schools.elementary} /> : null}
+              {listing.schools.middle     ? <DetailRow label="Middle"      value={listing.schools.middle} /> : null}
+              {listing.schools.high       ? <DetailRow label="High School" value={listing.schools.high} /> : null}
+            </View>
+          ) : null}
+
+          {/* Listed by */}
+          <View style={s.section}>
+            <Text style={s.sectionTitle}>Listed By</Text>
+            <Text style={s.agentName}>
+              {listing.listAgent.firstName} {listing.listAgent.lastName}
+            </Text>
+            {listing.listOffice?.name
+              ? <Text style={s.agentOffice}>{listing.listOffice.name}</Text>
+              : null}
+          </View>
+
+          {/* Chris CTA card */}
+          <View style={s.chrisCard}>
+            <View style={s.chrisCardLeft}>
+              <Ionicons name="person-circle" size={36} color={Colors.gold} />
+              <View>
+                <Text style={s.chrisName}>Chris Jurgens</Text>
+                <Text style={s.chrisSub}>Dayton Relocation Specialist</Text>
+              </View>
+            </View>
+            <Text style={s.chrisBody}>
+              Have questions about this home or the neighborhood? Chris is your local expert.
+            </Text>
+          </View>
+
+          <View style={{ height: 110 }} />
+        </View>
       </ScrollView>
 
       {/* ── Sticky CTA bar ────────────────────────────────────────────────── */}
@@ -559,8 +562,8 @@ const s = StyleSheet.create({
   },
   errorBackText: { color: Colors.black, fontWeight: "700", fontSize: 14 },
 
-  // Gallery
-  gallery:       { height: 280 },
+  // Gallery — fixed height block, lives inside the outer ScrollView
+  gallery:       { width: SCREEN_W, height: 280, overflow: "hidden" },
   galleryScroll: { width: SCREEN_W, height: 280 },
   photo:         { width: SCREEN_W, height: 280 },
   statusBadge: {
@@ -603,7 +606,7 @@ const s = StyleSheet.create({
   thumbActive: { borderColor: Colors.gold },
   thumbImg:    { width: 64, height: 48 },
 
-  // Body
+  // Outer scroll + content
   scroll:   { flex: 1 },
   content:  { padding: 20 },
 
