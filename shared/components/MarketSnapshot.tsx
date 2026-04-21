@@ -70,7 +70,13 @@ export default function MarketSnapshot() {
   useEffect(() => {
     (async () => {
       try {
-        const listings: Listing[] = await trestleApi.getForSale({ top: 50 });
+        // Fetch a sample page for medians/DOM, and a *separate* true count
+        // (OData $count=true) so the "Active Listings" card isn't capped
+        // at the page size.
+        const [listings, activeCount] = await Promise.all([
+          trestleApi.getForSale({ top: 200, orderBy: "ModificationTimestamp desc" }),
+          trestleApi.getForSaleCount(),
+        ]);
         if (listings.length === 0) throw new Error("empty");
 
         const prices = listings.map((l) => l.listPrice);
@@ -88,10 +94,13 @@ export default function MarketSnapshot() {
           (l) => l.listDate && daysOnMarket(l.listDate) <= 7
         ).length;
 
+        // Format the true count (e.g. "1,248")
+        const activeLabel = activeCount.toLocaleString("en-US");
+
         setStats([
           {
             label: "Active Listings",
-            value: listings.length.toString(),
+            value: activeLabel,
             icon:  "home-outline",
           },
           {

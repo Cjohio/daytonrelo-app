@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "expo-router";
 import BrandHeader, { BackBtn } from "../shared/components/BrandHeader";
 import {
@@ -10,6 +10,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "../shared/theme/colors";
 import AppTabBar from "../shared/components/AppTabBar";
 import ChatFAB from "../shared/components/ChatFAB";
+import { supabase } from "../lib/supabase";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 type FoodType = "full_kitchen" | "food_trucks" | "snacks" | "no_food";
@@ -24,6 +25,29 @@ interface Brewery {
   website:     string;
   address:     string;
   tip?:        string;
+}
+
+// Map a Supabase row → Brewery. Unknown enum values fall back to safe defaults.
+const ALLOWED_FEATURES: readonly Feature[] = [
+  "dog_friendly","live_music","patio","historic","coop","bike_trail","cocktails","coffee",
+];
+const ALLOWED_FOOD: readonly FoodType[] = ["full_kitchen","food_trucks","snacks","no_food"];
+
+function mapRow(row: any): Brewery {
+  const food: FoodType = ALLOWED_FOOD.includes(row.food) ? row.food : "no_food";
+  const features: Feature[] = Array.isArray(row.features)
+    ? (row.features.filter((f: string) => ALLOWED_FEATURES.includes(f as Feature)) as Feature[])
+    : [];
+  return {
+    name: row.name,
+    city: row.city,
+    description: row.description,
+    food,
+    features,
+    website: row.website,
+    address: row.address,
+    tip: row.tip ?? undefined,
+  };
 }
 
 // ─── Feature config ───────────────────────────────────────────────────────────
@@ -264,8 +288,10 @@ const BREWERIES: Brewery[] = [
   },
 ];
 
-// Get unique cities for filter tabs
-const CITIES = ["All", ...Array.from(new Set(BREWERIES.map(b => b.city))).sort()];
+// Get unique cities for filter tabs (derived at runtime from the active list)
+function citiesOf(list: Brewery[]): string[] {
+  return ["All", ...Array.from(new Set(list.map(b => b.city))).sort()];
+}
 
 // ─── Components ───────────────────────────────────────────────────────────────
 function FoodBadge({ type }: { type: FoodType }) {
@@ -329,11 +355,27 @@ function BreweryCard({ brewery }: { brewery: Brewery }) {
 // ─── Screen ───────────────────────────────────────────────────────────────────
 export default function BreweriesScreen() {
   const router = useRouter();
-  const [city, setCity] = useState("All");
+  const [city, setCity]           = useState("All");
+  const [breweries, setBreweries] = useState<Brewery[]>(BREWERIES);
+
+  // Live-fetch from Supabase. Falls back to bundled array on error.
+  useEffect(() => {
+    supabase
+      .from("breweries")
+      .select("*")
+      .eq("is_active", true)
+      .order("sort_order", { ascending: true })
+      .then(({ data, error }) => {
+        if (error || !data || data.length === 0) return;
+        setBreweries(data.map(mapRow));
+      });
+  }, []);
+
+  const CITIES = citiesOf(breweries);
 
   const filtered = city === "All"
-    ? BREWERIES
-    : BREWERIES.filter(b => b.city === city);
+    ? breweries
+    : breweries.filter(b => b.city === city);
 
   return (
     <SafeAreaView style={sb.safe} edges={["top"]}>

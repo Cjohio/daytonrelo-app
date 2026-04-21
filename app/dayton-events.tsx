@@ -54,10 +54,12 @@ export default function DaytonEventsScreen() {
   const [freeOnly,       setFreeOnly]       = useState(false);
 
   useEffect(() => {
+    const todayIso = new Date().toISOString().slice(0, 10);
     supabase
       .from("events")
       .select("*")
       .eq("is_active", true)
+      .gte("end_date", todayIso)
       .order("sort_order", { ascending: true })
       .then(({ data, error }) => {
         if (!error && data && data.length > 0) setAllEvents(data.map(mapRow));
@@ -72,7 +74,7 @@ export default function DaytonEventsScreen() {
       if (freeOnly && !e.isFree) return false;
       return true;
     });
-  }, [activeCategory, freeOnly]);
+  }, [allEvents, activeCategory, freeOnly]);
 
   // Group by month
   const sections = useMemo(() => {
@@ -95,7 +97,7 @@ export default function DaytonEventsScreen() {
 
   return (
     <View style={s.container}>
-      <BrandHeader left={<BackBtn onPress={() => router.back()} />} title="Dayton Events" />
+      <BrandHeader left={<BackBtn onPress={() => router.back()} />} />
 
       {/* ── Hero stats bar ──────────────────────────────────────────────── */}
       <View style={s.statsBar}>

@@ -12,6 +12,7 @@ import MarketSnapshot from "../shared/components/MarketSnapshot";
 import MortgageRates from "../shared/components/MortgageRates";
 import DaytonEvents from "../shared/components/DaytonEvents";
 import FeaturedListings from "../shared/components/FeaturedListings";
+import HomeToolsCTA from "../shared/components/HomeToolsCTA";
 
 // ─── Dayton highlights ────────────────────────────────────────────────────────
 const HIGHLIGHTS = [
@@ -49,6 +50,7 @@ const HIGHLIGHTS = [
 
 // ─── Quick local links for residents ─────────────────────────────────────────
 const EXPLORE_LINKS = [
+  { icon: "home-outline",            label: "Browse Homes",             route: "/(tabs)/explore" },
   { icon: "map-outline",             label: "Day Trips Guide",          route: "/day-trips" },
   { icon: "construct-outline",       label: "Local Services",           route: "/local-services" },
   { icon: "git-compare-outline",     label: "Compare Neighborhoods",    route: "/neighborhood-compare" },
@@ -213,6 +215,9 @@ export default function DiscoverHub() {
             <Ionicons name="arrow-forward" size={14} color={Colors.black} />
           </TouchableOpacity>
         </View>
+
+        {/* ── Home tools banner (browse + mortgage calculator) ──────────── */}
+        <HomeToolsCTA />
 
         {/* ── CTA ────────────────────────────────────────────────────────── */}
         <View style={s.cta}>

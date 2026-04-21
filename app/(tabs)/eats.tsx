@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import BrandHeader, { BackBtn } from "../../shared/components/BrandHeader";
 import {
   View, Text, ScrollView, TouchableOpacity, StyleSheet, Linking, Image,
@@ -8,6 +8,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "../../shared/theme/colors";
 import ChatFAB from "../../shared/components/ChatFAB";
 import HeaderActions from "../../shared/components/HeaderActions";
+import { supabase } from "../../lib/supabase";
 
 // ─── Restaurant logo registry ──────────────────────────────────────────────────
 // React Native requires static require() paths, so we build a map by id.
@@ -38,6 +39,21 @@ interface Restaurant {
   description: string;
   tip?:        string;        // local pro-tip
   mapsQuery:   string;        // passed to Google Maps
+}
+
+// Map a Supabase row → Restaurant (column names → camelCase)
+function mapRow(row: any): Restaurant {
+  return {
+    id:          row.id,
+    name:        row.name,
+    cuisine:     row.cuisine,
+    hood:        row.hood,
+    since:       row.since ?? undefined,
+    price:       row.price,
+    description: row.description,
+    tip:         row.tip ?? undefined,
+    mapsQuery:   row.maps_query,
+  };
 }
 
 // ─── Dayton Staples ────────────────────────────────────────────────────────────
@@ -341,8 +357,34 @@ type Tab = "staples" | "best";
 
 export default function EatsScreen() {
   const [activeTab, setActiveTab] = useState<Tab>("staples");
+  const [staples,   setStaples]   = useState<Restaurant[]>(STAPLES);
+  const [best,      setBest]      = useState<Restaurant[]>(BEST);
 
-  const list = activeTab === "staples" ? STAPLES : BEST;
+  // Live-fetch from Supabase. Falls back to bundled arrays on error.
+  useEffect(() => {
+    supabase
+      .from("restaurants")
+      .select("*")
+      .eq("is_active", true)
+      .order("tier", { ascending: true })
+      .order("sort_order", { ascending: true })
+      .then(({ data, error }) => {
+        if (error || !data || data.length === 0) return;
+        const mapped = data.map(mapRow);
+        const s = data
+          .map((r, i) => ({ r, i }))
+          .filter(({ r }) => r.tier === "staple")
+          .map(({ i }) => mapped[i]);
+        const b = data
+          .map((r, i) => ({ r, i }))
+          .filter(({ r }) => r.tier === "best")
+          .map(({ i }) => mapped[i]);
+        if (s.length > 0) setStaples(s);
+        if (b.length > 0) setBest(b);
+      });
+  }, []);
+
+  const list = activeTab === "staples" ? staples : best;
 
   return (
     <SafeAreaView style={s.safe} edges={["top"]}>

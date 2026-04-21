@@ -2,13 +2,14 @@
 //  Trestle (CoreLogic) RESO Web API Client
 //  Docs: https://trestle.us/documentation
 //
-//  Authentication: OAuth 2.0 client_credentials
-//  Data feed:      RESO Web API (OData)
+//  Authentication: OAuth 2.0 client_credentials — performed server-side by
+//  the `trestle-token` Supabase Edge Function so the client secret never
+//  ships in the mobile bundle.
 //
-//  Set in .env:
-//    EXPO_PUBLIC_TRESTLE_CLIENT_ID
-//    EXPO_PUBLIC_TRESTLE_CLIENT_SECRET
+//  Client-side envs:
 //    EXPO_PUBLIC_TRESTLE_BASE_URL   (e.g. https://api-prod.corelogic.com/trestle)
+//    EXPO_PUBLIC_SUPABASE_URL       (used to derive the Edge Function URL)
+//    EXPO_PUBLIC_SUPABASE_ANON_KEY  (sent as apikey header on the token request)
 // ─────────────────────────────────────────────
 
 import { API_CONFIG } from "./config";
@@ -23,8 +24,13 @@ import {
   ListingType,
 } from "../shared/types/listing";
 
-const { clientId, clientSecret, baseURL, tokenURL, defaultCities } =
-  API_CONFIG.trestle;
+const { baseURL, defaultCities } = API_CONFIG.trestle;
+
+const SUPABASE_URL      = process.env.EXPO_PUBLIC_SUPABASE_URL      ?? "";
+const SUPABASE_ANON_KEY = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY ?? "";
+const TOKEN_PROXY_URL   = SUPABASE_URL
+  ? `${SUPABASE_URL.replace(/\/$/, "")}/functions/v1/trestle-token`
+  : "";
 
 // ── Token cache ───────────────────────────────
 
@@ -42,25 +48,26 @@ async function getAccessToken(): Promise<string> {
     return _tokenCache.token;
   }
 
-  const body = new URLSearchParams({
-    grant_type:    "client_credentials",
-    client_id:     clientId,
-    client_secret: clientSecret,
-    scope:         "api",
-  });
+  if (!TOKEN_PROXY_URL) {
+    throw new Error("Trestle token proxy misconfigured: EXPO_PUBLIC_SUPABASE_URL is empty.");
+  }
 
-  console.log("[Trestle] Fetching token from:", tokenURL);
-  console.log("[Trestle] clientId present:", !!clientId, "| clientSecret present:", !!clientSecret);
-  const res = await fetch(tokenURL, {
+  const res = await fetch(TOKEN_PROXY_URL, {
     method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body:    body.toString(),
+    headers: {
+      "Content-Type": "application/json",
+      // Supabase Edge Functions require either an apikey or an Authorization
+      // header even when verify_jwt is false. Passing the anon key is fine
+      // here — it's already public and ships in the app bundle.
+      "apikey":        SUPABASE_ANON_KEY,
+      "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
+    },
   });
 
   if (!res.ok) {
     const text = await res.text();
-    console.error("[Trestle] Token fetch failed:", res.status, text);
-    throw new Error(`Trestle token error ${res.status}: ${text}`);
+    console.error("[Trestle] Token proxy failed:", res.status, text);
+    throw new Error(`Trestle token proxy error ${res.status}: ${text}`);
   }
 
   const json = await res.json() as { access_token: string; expires_in: number };
@@ -219,7 +226,10 @@ export interface TrestleQuery {
   keyword?:     string;
   top?:         number;   // $top  (page size, default 20)
   skip?:        number;   // $skip (offset)
-  orderBy?:     "ListPrice asc" | "ListPrice desc" | "OnMarketDate desc" | "OnMarketDate asc";
+  orderBy?:
+    | "ListPrice asc" | "ListPrice desc"
+    | "OnMarketDate desc" | "OnMarketDate asc"
+    | "ModificationTimestamp desc" | "ModificationTimestamp asc";
   expand?:      string;   // e.g. "Media"
 }
 
@@ -315,6 +325,35 @@ async function fetchProperties(query: TrestleQuery): Promise<Listing[]> {
   return rows.map(mapProperty);
 }
 
+/**
+ * Return the *true* number of properties matching `query` from Trestle —
+ * NOT capped by `$top`. Uses OData `$count=true` and `$top=0` so the server
+ * returns just the count without any rows. Filters mirror fetchProperties()
+ * but skip $select/$expand/$orderby (irrelevant for counting).
+ */
+async function fetchPropertyCount(query: TrestleQuery): Promise<number> {
+  // Build minimal params: filter + $count=true + $top=0
+  const fullParams = buildODataParams({ ...query, top: 0 });
+  const filter     = fullParams.get("$filter") ?? "";
+
+  const params = new URLSearchParams();
+  params.set("$filter", filter);
+  params.set("$count",  "true");
+  params.set("$top",    "0");
+
+  const headers = await buildHeaders();
+  const url     = `${baseURL}/odata/Property?${params}`;
+
+  const res = await fetch(url, { headers });
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`Trestle count error ${res.status}: ${text}`);
+  }
+
+  const json = await res.json() as { "@odata.count"?: number };
+  return json["@odata.count"] ?? 0;
+}
+
 async function fetchPropertyById(listingId: string): Promise<Listing> {
   const headers = await buildHeaders();
   const params  = new URLSearchParams({ "$expand": "Media" });
@@ -346,6 +385,15 @@ export const trestleApi = {
   /** Homes for sale in Dayton metro */
   async getForSale(query: Omit<TrestleQuery, "type"> = {}): Promise<Listing[]> {
     return fetchProperties({ top: 20, ...query, type: "residential" });
+  },
+
+  /**
+   * Exact count of active for-sale properties matching `query` (no row cap).
+   * Used by MarketSnapshot — separate from getForSale() so the displayed
+   * count doesn't get capped to the page size.
+   */
+  async getForSaleCount(query: Omit<TrestleQuery, "type"> = {}): Promise<number> {
+    return fetchPropertyCount({ ...query, status: "Active", type: "residential" });
   },
 
   /** Rental listings — useful for PCS / short-term relocators */

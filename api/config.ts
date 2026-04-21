@@ -38,12 +38,9 @@ export const API_CONFIG = {
 
   trestle: {
     // CoreLogic Trestle — RESO Web API (MLS feed via DABR membership)
-    // Get credentials from DABR: https://www.dabr.com
-    // OAuth2 client credentials — replace placeholders with real values
-    clientId:     process.env.EXPO_PUBLIC_TRESTLE_CLIENT_ID     ?? "",
-    clientSecret: process.env.EXPO_PUBLIC_TRESTLE_CLIENT_SECRET ?? "",
+    // The OAuth client secret lives in Supabase Vault, NOT in this bundle.
+    // api/trestle.ts fetches access tokens via the trestle-token Edge Function.
     baseURL:      process.env.EXPO_PUBLIC_TRESTLE_BASE_URL       ?? "https://api-prod.corelogic.com/trestle",
-    tokenURL:     process.env.EXPO_PUBLIC_TRESTLE_TOKEN_URL      ?? "https://api-prod.corelogic.com/trestle/oidc/connect/token",
     defaultCities: [
       "Dayton", "Beavercreek", "Fairborn", "Kettering",
       "Centerville", "Miamisburg", "Springboro", "Oakwood",

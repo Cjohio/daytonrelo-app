@@ -11,6 +11,7 @@ web-build/
 *.mobileprovision
 *.orig.*
 .DS_Store
+google-service-account.json
 npm-debug.*
 yarn-debug.*
 yarn-error.*

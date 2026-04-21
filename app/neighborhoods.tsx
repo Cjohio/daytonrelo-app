@@ -7,6 +7,7 @@ import BrandHeader, { BackBtn } from "../shared/components/BrandHeader";
 import { Colors } from "../shared/theme/colors";
 import AppTabBar from "../shared/components/AppTabBar";
 import ChatFAB from "../shared/components/ChatFAB";
+import HomeToolsCTA from "../shared/components/HomeToolsCTA";
 import neighborhoods from "../content/neighborhoods.json";
 
 const FILTERS = ["All", "Under $250K", "Top Schools", "Under 15 Min to Base"];
@@ -133,6 +134,12 @@ export default function NeighborhoodsScreen() {
             <Text style={styles.emptyText}>No neighborhoods match your search.</Text>
           </View>
         )}
+
+        {/* Home browsing + mortgage calculator entry points */}
+        <HomeToolsCTA
+          title="Find a Home in These Neighborhoods"
+          subtitle="Browse active listings or estimate your monthly payment"
+        />
 
         <View style={{ height: 40 }} />
       </ScrollView>

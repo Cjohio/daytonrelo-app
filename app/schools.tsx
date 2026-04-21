@@ -10,6 +10,7 @@ import { Colors } from "../shared/theme/colors";
 import BrandHeader, { BackBtn } from "../shared/components/BrandHeader";
 import AppTabBar from "../shared/components/AppTabBar";
 import ChatFAB from "../shared/components/ChatFAB";
+import HomeToolsCTA from "../shared/components/HomeToolsCTA";
 
 // ─── Types ─────────────────────────────────────────────────────────────────────
 interface PublicDistrict {
@@ -488,6 +489,12 @@ export default function SchoolsScreen() {
             Ratings from Ohio State Report Cards and Niche.com. Grades and enrollment may change — always verify on the school's website.
           </Text>
         </View>
+
+        {/* Home browsing + mortgage calculator entry points */}
+        <HomeToolsCTA
+          title="Buying in a Top District?"
+          subtitle="Browse homes by neighborhood or estimate your monthly payment"
+        />
 
         <View style={{ height: 40 }} />
       </ScrollView>

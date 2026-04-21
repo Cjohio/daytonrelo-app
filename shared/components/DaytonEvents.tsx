@@ -558,10 +558,12 @@ export default function DaytonEvents() {
 
   // Fetch live events from Supabase; silently fall back to static data
   useEffect(() => {
+    const todayIso = new Date().toISOString().slice(0, 10);
     supabase
       .from("events")
       .select("*")
       .eq("is_active", true)
+      .gte("end_date", todayIso)
       .order("sort_order", { ascending: true })
       .then(({ data, error }) => {
         if (!error && data && data.length > 0) {

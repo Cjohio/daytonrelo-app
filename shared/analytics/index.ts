@@ -27,6 +27,7 @@ export type AnalyticsEvent =
   | "listing_viewed"
   | "property_saved"
   | "property_unsaved"
+  | "showing_requested"
   // Calculators & tools
   | "bah_calculated"
   | "mortgage_calculated"

@@ -46,75 +46,132 @@ function gpaLabel(n: number) {
   return "C";
 }
 
-// ─── CompareStat — 3-column version ──────────────────────────────────────────
-function CompareStat({ label, a, b, c, format, higherBetter = true }: {
+// ─── CompareStat — N-column version (supports 3 or 4 slots) ─────────────────
+function CompareStat({ label, values, format, higherBetter = true, compact = false }: {
   label: string;
-  a: number;
-  b: number;
-  c: number;
+  values: number[];
   format: (n: number) => string;
   higherBetter?: boolean;
+  compact?: boolean; // narrower styling when 4 columns share the row
 }) {
-  function isWinner(val: number) {
-    const others = [a, b, c].filter(v => v !== val);
-    return higherBetter
-      ? others.every(o => val >= o)
-      : others.every(o => val <= o);
-  }
-  const aw = isWinner(a);
-  const bw = isWinner(b);
-  const cw = isWinner(c);
+  const best = higherBetter ? Math.max(...values) : Math.min(...values);
   return (
     <View style={ct.row}>
-      <Text style={ct.rowLabel}>{label}</Text>
-      <Text style={[ct.val, aw && ct.valWin]}>{format(a)}</Text>
-      <Text style={[ct.val, bw && ct.valWin]}>{format(b)}</Text>
-      <Text style={[ct.val, cw && ct.valWin]}>{format(c)}</Text>
+      <Text style={[ct.rowLabel, compact && ct.rowLabelCompact]}>{label}</Text>
+      {values.map((v, i) => (
+        <Text
+          key={i}
+          style={[ct.val, compact && ct.valCompact, v === best && ct.valWin]}
+        >
+          {format(v)}
+        </Text>
+      ))}
     </View>
   );
 }
 
-export default function NeighborhoodCompareScreen() {
-  const [selA, setSelA] = useState<string | null>(null);
-  const [selB, setSelB] = useState<string | null>(null);
-  const [selC, setSelC] = useState<string | null>(null);
-  const [picking, setPicking] = useState<"A" | "B" | "C" | null>("A");
+// Per-slot color palette (fill + accent text). Indexes map to slots A/B/C/D.
+const SLOT_COLORS  = ["#1A3A5C", Colors.black, "#2D5A1B", "#4A1F66"] as const;
+const SLOT_ACCENTS = ["#6BB4FF", Colors.gold,  "#7ECC6C", "#C9A1FF"] as const;
+const SLOT_LETTERS = ["A", "B", "C", "D"] as const;
 
-  const nbA = NEIGHBORHOODS.find(n => n.name === selA);
-  const nbB = NEIGHBORHOODS.find(n => n.name === selB);
-  const nbC = NEIGHBORHOODS.find(n => n.name === selC);
+export default function NeighborhoodCompareScreen() {
+  // User can compare 3 or 4 neighborhoods at once.
+  const [slotCount, setSlotCount] = useState<3 | 4>(3);
+  // Always-length-4 array; only the first `slotCount` entries are active.
+  const [slots,     setSlots]     = useState<(string | null)[]>([null, null, null, null]);
+  const [picking,   setPicking]   = useState<number | null>(0);
+
+  const active       = slots.slice(0, slotCount);
+  const neighborhoods = active.map(n => (n ? NEIGHBORHOODS.find(x => x.name === n) : undefined));
+  const allFilled    = neighborhoods.every(Boolean) as boolean;
 
   function pick(name: string) {
-    if (picking === "A") { setSelA(name); setPicking("B"); }
-    else if (picking === "B") { setSelB(name); setPicking("C"); }
-    else if (picking === "C") { setSelC(name); setPicking(null); }
+    if (picking === null) return;
+    const next = [...slots];
+    next[picking] = name;
+    setSlots(next);
+
+    // Advance to next empty slot within the active range; null if all full.
+    let na: number | null = null;
+    for (let i = picking + 1; i < slotCount; i++) {
+      if (!next[i]) { na = i; break; }
+    }
+    if (na === null) {
+      for (let i = 0; i < slotCount; i++) {
+        if (!next[i]) { na = i; break; }
+      }
+    }
+    setPicking(na);
   }
 
-  function reset() { setSelA(null); setSelB(null); setSelC(null); setPicking("A"); }
+  function reset() {
+    setSlots([null, null, null, null]);
+    setPicking(0);
+  }
 
-  const SLOT_COLORS = { A: "#1A3A5C", B: Colors.black, C: "#2D5A1B" };
+  function changeSlotCount(n: 3 | 4) {
+    if (n === slotCount) return;
+    setSlotCount(n);
+    if (n === 3 && slots[3]) {
+      const next = [...slots];
+      next[3] = null;
+      setSlots(next);
+    }
+    // If user had nothing picking, leave as-is; otherwise point picking at
+    // the first empty slot within new range.
+    const base = n === 4 ? [...slots] : slots.map((v, i) => (i < 3 ? v : null));
+    let na: number | null = null;
+    for (let i = 0; i < n; i++) {
+      if (!base[i]) { na = i; break; }
+    }
+    setPicking(na);
+  }
+
+  const isCompact = slotCount === 4;
 
   return (
     <SafeAreaView style={s.safe} edges={[]}>
       <BrandHeader left={<BackBtn onPress={() => router.back()} />} />
       <ScrollView style={s.scroll} contentContainerStyle={s.content} showsVerticalScrollIndicator={false}>
 
-        {/* 3-slot selection bar */}
-        <View style={s.selectionBar}>
-          {(["A", "B", "C"] as const).map(slot => {
-            const sel = slot === "A" ? selA : slot === "B" ? selB : selC;
-            const setter = slot === "A" ? setSelA : slot === "B" ? setSelB : setSelC;
-            const isActive = picking === slot;
-            return (
+        {/* Slot-count toggle: 3 vs 4 neighborhoods */}
+        <View style={s.modeToggle}>
+          <Text style={s.modeLabel}>Compare</Text>
+          <View style={s.modeSegment}>
+            {([3, 4] as const).map(n => (
               <TouchableOpacity
-                key={slot}
-                style={[s.selSlot, isActive && s.selSlotActive, sel && s.selSlotFilled,
-                        sel && { borderColor: SLOT_COLORS[slot] }]}
-                onPress={() => { setter(null); setPicking(slot); }}
+                key={n}
+                style={[s.modeBtn, slotCount === n && s.modeBtnActive]}
+                onPress={() => changeSlotCount(n)}
                 activeOpacity={0.8}
               >
-                <View style={[s.slotBadge, { backgroundColor: SLOT_COLORS[slot] }]}>
-                  <Text style={s.slotBadgeText}>{slot}</Text>
+                <Text style={[s.modeBtnText, slotCount === n && s.modeBtnTextActive]}>
+                  {n}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+          <Text style={s.modeSuffix}>neighborhoods</Text>
+        </View>
+
+        {/* Selection bar */}
+        <View style={s.selectionBar}>
+          {Array.from({ length: slotCount }).map((_, i) => {
+            const sel      = slots[i];
+            const isActive = picking === i;
+            return (
+              <TouchableOpacity
+                key={i}
+                style={[s.selSlot, isActive && s.selSlotActive, sel && s.selSlotFilled,
+                        sel && { borderColor: SLOT_COLORS[i] }]}
+                onPress={() => {
+                  const next = [...slots]; next[i] = null; setSlots(next); setPicking(i);
+                }}
+                activeOpacity={0.8}
+              >
+                <View style={[s.slotBadge, { backgroundColor: SLOT_COLORS[i] }]}>
+                  <Text style={s.slotBadgeText}>{SLOT_LETTERS[i]}</Text>
                 </View>
                 {sel
                   ? <Text style={s.selSlotName} numberOfLines={1}>{sel}</Text>
@@ -124,66 +181,83 @@ export default function NeighborhoodCompareScreen() {
           })}
         </View>
 
-        {picking && (
+        {picking !== null && (
           <Text style={s.pickInstruction}>
-            Tap a neighborhood to fill <Text style={{ color: Colors.gold }}>Slot {picking}</Text>
+            Tap a neighborhood to fill{" "}
+            <Text style={{ color: Colors.gold }}>Slot {SLOT_LETTERS[picking]}</Text>
           </Text>
         )}
 
         {/* Neighborhood picker */}
         <View style={s.pickerGrid}>
           {NEIGHBORHOODS.map(nb => {
-            const slotKey = nb.name === selA ? "A" : nb.name === selB ? "B" : nb.name === selC ? "C" : null;
+            const slotIdx = slots.findIndex(v => v === nb.name);
+            const inRange = slotIdx >= 0 && slotIdx < slotCount;
             return (
               <TouchableOpacity
                 key={nb.name}
                 style={[s.pickerChip,
-                  slotKey === "A" && { backgroundColor: SLOT_COLORS.A, borderColor: SLOT_COLORS.A },
-                  slotKey === "B" && { backgroundColor: SLOT_COLORS.B, borderColor: SLOT_COLORS.B },
-                  slotKey === "C" && { backgroundColor: SLOT_COLORS.C, borderColor: SLOT_COLORS.C },
+                  inRange && { backgroundColor: SLOT_COLORS[slotIdx], borderColor: SLOT_COLORS[slotIdx] },
                 ]}
                 onPress={() => pick(nb.name)}
-                disabled={!picking && !slotKey}
+                disabled={picking === null && !inRange}
                 activeOpacity={0.7}
               >
-                <Text style={[s.pickerChipText, slotKey && s.pickerChipTextActive]}>
-                  {slotKey ? `${slotKey} · ` : ""}{nb.name}
+                <Text style={[s.pickerChipText, inRange && s.pickerChipTextActive]}>
+                  {inRange ? `${SLOT_LETTERS[slotIdx]} · ` : ""}{nb.name}
                 </Text>
               </TouchableOpacity>
             );
           })}
         </View>
 
-        {/* Comparison table — show when all 3 selected */}
-        {nbA && nbB && nbC && (
+        {/* Comparison table — shows when all active slots are filled */}
+        {allFilled && (
           <>
             <View style={ct.table}>
               {/* Header */}
               <View style={ct.header}>
-                <Text style={ct.labelCol} />
-                <Text style={[ct.headerSlot, { color: "#6BB4FF" }]}>{nbA.name}</Text>
-                <Text style={[ct.headerSlot, { color: Colors.gold }]}>{nbB.name}</Text>
-                <Text style={[ct.headerSlot, { color: "#7ECC6C" }]}>{nbC.name}</Text>
+                <Text style={[ct.labelCol, isCompact && ct.labelColCompact]} />
+                {neighborhoods.map((nb, i) => (
+                  <Text
+                    key={i}
+                    style={[ct.headerSlot, isCompact && ct.headerSlotCompact, { color: SLOT_ACCENTS[i] }]}
+                    numberOfLines={2}
+                  >
+                    {nb!.name}
+                  </Text>
+                ))}
               </View>
 
-              <CompareStat label="Median Price"     a={nbA.medPrice} b={nbB.medPrice} c={nbC.medPrice}
+              <CompareStat label="Median Price"   compact={isCompact}
+                values={neighborhoods.map(n => n!.medPrice)}
                 format={n => "$" + (n / 1000).toFixed(0) + "K"} higherBetter={false} />
-              <CompareStat label="Avg Rent / mo"    a={nbA.medRent}  b={nbB.medRent}  c={nbC.medRent}
+              <CompareStat label="Avg Rent / mo"  compact={isCompact}
+                values={neighborhoods.map(n => n!.medRent)}
                 format={n => "$" + n.toLocaleString()} higherBetter={false} />
-              <CompareStat label="School Rating"    a={nbA.schoolGpa} b={nbB.schoolGpa} c={nbC.schoolGpa}
+              <CompareStat label="School Rating"  compact={isCompact}
+                values={neighborhoods.map(n => n!.schoolGpa)}
                 format={gpaLabel} />
-              <CompareStat label="↔ WPAFB"          a={nbA.wpafbMins} b={nbB.wpafbMins} c={nbC.wpafbMins}
+              <CompareStat label="↔ WPAFB"        compact={isCompact}
+                values={neighborhoods.map(n => n!.wpafbMins)}
                 format={n => n + " min"} higherBetter={false} />
-              <CompareStat label="↔ Downtown"       a={nbA.downtown}  b={nbB.downtown}  c={nbC.downtown}
+              <CompareStat label="↔ Downtown"     compact={isCompact}
+                values={neighborhoods.map(n => n!.downtown)}
                 format={n => n + " min"} higherBetter={false} />
-              <CompareStat label="Cost of Living"   a={nbA.colIndex}  b={nbB.colIndex}  c={nbC.colIndex}
+              <CompareStat label="Cost of Living" compact={isCompact}
+                values={neighborhoods.map(n => n!.colIndex)}
                 format={n => n.toString()} higherBetter={false} />
 
               {/* Notes row */}
               <View style={ct.notesRow}>
-                <Text style={[ct.noteText, { color: "#6BB4FF" }]}>{nbA.note}</Text>
-                <Text style={[ct.noteText, { color: Colors.gold }]}>{nbB.note}</Text>
-                <Text style={[ct.noteText, { color: "#7ECC6C" }]}>{nbC.note}</Text>
+                {neighborhoods.map((nb, i) => (
+                  <Text
+                    key={i}
+                    style={[ct.noteText, isCompact && ct.noteTextCompact, { color: SLOT_ACCENTS[i] }]}
+                  >
+                    {nb!.note}
+                  </Text>
+                ))}
               </View>
             </View>
 
@@ -216,6 +290,25 @@ const s = StyleSheet.create({
   safe:    { flex: 1, backgroundColor: Colors.white },
   scroll:  { flex: 1 },
   content: { padding: 16, paddingBottom: 40 },
+
+  // 3-vs-4 slot-count toggle
+  modeToggle: {
+    flexDirection: "row", alignItems: "center", gap: 8,
+    marginBottom: 12, paddingVertical: 6,
+  },
+  modeLabel:   { color: Colors.black, fontSize: 13, fontWeight: "700" },
+  modeSegment: {
+    flexDirection: "row", backgroundColor: "#F1F1F1",
+    borderRadius: 8, padding: 2, gap: 2,
+  },
+  modeBtn: {
+    paddingHorizontal: 12, paddingVertical: 6, borderRadius: 6,
+    minWidth: 34, alignItems: "center",
+  },
+  modeBtnActive:     { backgroundColor: Colors.black },
+  modeBtnText:       { color: Colors.gray, fontSize: 13, fontWeight: "800" },
+  modeBtnTextActive: { color: Colors.white },
+  modeSuffix:        { color: Colors.gray, fontSize: 13 },
 
   selectionBar: { flexDirection: "row", gap: 8, marginBottom: 12 },
   selSlot: {
@@ -253,15 +346,20 @@ const s = StyleSheet.create({
 const ct = StyleSheet.create({
   table:  { borderRadius: 14, borderWidth: 1, borderColor: "#222", overflow: "hidden", marginBottom: 14, backgroundColor: "#0D0D0D" },
 
-  header:     { flexDirection: "row", backgroundColor: "#111", paddingVertical: 12, paddingHorizontal: 10, alignItems: "center" },
-  labelCol:   { width: 90, fontSize: 10 },
-  headerSlot: { flex: 1, textAlign: "center", fontWeight: "800", fontSize: 12 },
+  header:            { flexDirection: "row", backgroundColor: "#111", paddingVertical: 12, paddingHorizontal: 10, alignItems: "center" },
+  labelCol:          { width: 90, fontSize: 10 },
+  labelColCompact:   { width: 70 },
+  headerSlot:        { flex: 1, textAlign: "center", fontWeight: "800", fontSize: 12 },
+  headerSlotCompact: { fontSize: 11, paddingHorizontal: 2 },
 
-  row:      { flexDirection: "row", alignItems: "center", paddingVertical: 11, paddingHorizontal: 10, borderTopWidth: 1, borderTopColor: "#1A1A1A" },
-  rowLabel: { width: 90, color: "#666", fontSize: 11, fontWeight: "600" },
-  val:      { flex: 1, textAlign: "center", color: "#AAA", fontSize: 13, fontWeight: "700" },
-  valWin:   { color: Colors.gold },
+  row:               { flexDirection: "row", alignItems: "center", paddingVertical: 11, paddingHorizontal: 10, borderTopWidth: 1, borderTopColor: "#1A1A1A" },
+  rowLabel:          { width: 90, color: "#666", fontSize: 11, fontWeight: "600" },
+  rowLabelCompact:   { width: 70, fontSize: 10 },
+  val:               { flex: 1, textAlign: "center", color: "#AAA", fontSize: 13, fontWeight: "700" },
+  valCompact:        { fontSize: 12, paddingHorizontal: 2 },
+  valWin:            { color: Colors.gold },
 
-  notesRow: { flexDirection: "row", gap: 8, padding: 12, borderTopWidth: 1, borderTopColor: "#1A1A1A" },
-  noteText: { flex: 1, fontSize: 11, lineHeight: 16, opacity: 0.8 },
+  notesRow:          { flexDirection: "row", gap: 8, padding: 12, borderTopWidth: 1, borderTopColor: "#1A1A1A" },
+  noteText:          { flex: 1, fontSize: 11, lineHeight: 16, opacity: 0.8 },
+  noteTextCompact:   { fontSize: 10, lineHeight: 14, gap: 4 },
 });
